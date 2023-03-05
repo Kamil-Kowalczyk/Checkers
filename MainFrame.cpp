@@ -1,12 +1,5 @@
 #include "MainFrame.h"
 
-enum Direction {
-	TOP_RIGHT,
-	TOP_LEFT,
-	BOTTOM_RIGHT,
-	BOTTOM_LEFT
-};
-
 wxImagePanel* panel;
 wxPanel* mainPanel;
 wxButton* startMenuButtons[2];
@@ -50,106 +43,129 @@ void MainFrame::checkBoard() {
 	int moveId = 0;
 	int whiteBeated = 0;
 	int blackBeated = 0;
+	int destRow;
+	int destCol;
 
 	for (int i = 0; i < 24; i++) {
 		Pawn* pawn = &pawns[i];
+		std::set <Direction> directions;
+		if (pawn->isOnBoard && pawn->color == whoseTurn) {
+			if (pawn->color == WHITE) {
+				directions.insert(TOP_LEFT);
+				directions.insert(TOP_RIGHT);
+			} else {
+				directions.insert(BOTTOM_LEFT);
+				directions.insert(BOTTOM_RIGHT);
+			}
+		}
+		for (Direction direction: directions) {
+			destRow = pawn->row;
+			destCol = pawn->col;
+			getDestinationCoordinates(direction, destRow, destCol);
+			if (board[destRow][destCol].pawn == nullptr) {
+				if (destRow >= 0 && destRow <= 7 && destCol >= 0 && destCol <= 7) {
+					createPawnMove(destRow, destCol, pawn, moveId, MOVE);
+				}
+			}
+		}
+		directions.clear();
 
 		//game ending
-		if (!pawn->isOnBoard) {
-			if (pawn->color == WHITE) {
-				whiteBeated++;
-			} else {
-				blackBeated++;
-			}
-			continue;
-		}
-		if (pawn->color != whoseTurn) {
-			continue;
-		}
-
-		int row = pawn->row;
-		int col = pawn->col;
+		// if (!pawn->isOnBoard) {
+		// 	if (pawn->color == WHITE) {
+		// 		whiteBeated++;
+		// 	} else {
+		// 		blackBeated++;
+		// 	}
+		// 	continue;
+		// }
+		// if (pawn->color != whoseTurn) {
+		// 	continue;
+		// }
 
 		
+	// checking for moves
+	// 	int row = pawn->row;
+	// 	int col = pawn->col;
+	// 	if (pawn->color == WHITE && row != 0 && pawn->isOnBoard) {
+	// 		if (col != 0) {
+	// 			Field fieldtoMove = board[row - 1][col - 1];
+	// 			Field fieldToMoveForBeat = board[row - 2][col - 2];
+	// 			if (fieldtoMove.pawn == nullptr) {
+	// 				createPawnMove(row - 1, col - 1, pawn, moveId, MOVE);
+	// 			} else {
+	// 				if (fieldtoMove.pawn->color == !whoseTurn && fieldToMoveForBeat.pawn == nullptr) {
+	// 					createPawnMove(row - 2, col - 2, pawn, moveId, BEAT, row - 1, col - 1);
+	// 					isAnyBeatMove = true;
+	// 				}
+	// 			}
 
-		if (pawn->color == WHITE && row != 0 && pawn->isOnBoard) {
-			if (col != 0) {
-				Field fieldtoMove = board[row - 1][col - 1];
-				Field fieldToMoveForBeat = board[row - 2][col - 2];
-				if (fieldtoMove.pawn == nullptr) {
-					createPawnMove(row - 1, col - 1, pawn, moveId, MOVE);
-				} else {
-					if (fieldtoMove.pawn->color == !whoseTurn && fieldToMoveForBeat.pawn == nullptr) {
-						createPawnMove(row - 2, col - 2, pawn, moveId, BEAT, row - 1, col - 1);
-						isAnyBeatMove = true;
-					}
-				}
+	// 			// if (checkForBeatMove(row - 1, col - 1, row - 2, col - 2))
+	// 			// 	createPawnMove(row - 2, col - 2, pawn, moveId, BEAT, row - 1, col - 1);
+	// 			// else
+	// 			// 	createPawnMove(row - 1, col - 1, pawn, moveId, MOVE);
+	// 		}
 
-				// if (checkForBeatMove(row - 1, col - 1, row - 2, col - 2))
-				// 	createPawnMove(row - 2, col - 2, pawn, moveId, BEAT, row - 1, col - 1);
-				// else
-				// 	createPawnMove(row - 1, col - 1, pawn, moveId, MOVE);
-			}
-
-			if (col != 7) {
-				Field fieldtoMove = board[row - 1][col + 1];
-				Field fieldToMoveForBeat = board[row - 2][col + 2];
-				if (fieldtoMove.pawn == nullptr) {
-					createPawnMove(row - 1, col + 1, pawn, moveId, MOVE);
-				} else {
-					if (fieldtoMove.pawn->color == !whoseTurn && fieldToMoveForBeat.pawn == nullptr) {
-						createPawnMove(row - 2, col + 2, pawn, moveId, BEAT, row - 1, col + 1);
-						isAnyBeatMove = true;
-					}
-				}
-				// if (checkForBeatMove(row - 1, col + 1, row - 2, col + 2))
-				// 	createPawnMove(row - 2, col + 2, pawn, moveId, BEAT, row - 1, col + 1);
-				// else 
-				// 	createPawnMove(row - 1, col + 1, pawn, moveId, MOVE);
-			}
-		}
-		else if (pawn->color == BLACK  && row != 7 && pawn->isOnBoard) {
-			if (col != 0) {
-				Field fieldtoMove = board[row + 1][col - 1];
-				Field fieldToMoveForBeat = board[row + 2][col - 2];
-				if (fieldtoMove.pawn == nullptr) {
-					createPawnMove(row + 1, col - 1, pawn, moveId, MOVE);
-				} else {
-					if (fieldtoMove.pawn->color == !whoseTurn && fieldToMoveForBeat.pawn == nullptr) {
-						createPawnMove(row + 2, col - 2, pawn, moveId, BEAT, row + 1, col - 1);
-						isAnyBeatMove = true;
-					}
-				}
-				// if (checkForBeatMove(row + 1, col - 1, row + 2, col - 2))
-				// 	createPawnMove(row + 2, col - 2, pawn, moveId, BEAT, row + 1, col - 1);
-				// else
-				// 	createPawnMove(row + 1, col - 1, pawn, moveId, MOVE);
-			}
-			if (col != 7) {
-				Field fieldtoMove = board[row + 1][col + 1];
-				Field fieldToMoveForBeat = board[row + 2][col + 2];
-				if (fieldtoMove.pawn == nullptr) {
-					createPawnMove(row + 1, col + 1, pawn, moveId, MOVE);
-				} else {
-					if (fieldtoMove.pawn->color == !whoseTurn && fieldToMoveForBeat.pawn == nullptr) {
-						createPawnMove(row + 2, col + 2, pawn, moveId, BEAT, row - 1, col + 1);
-						isAnyBeatMove = true;
-					}
-				}
-				// if (checkForBeatMove(row + 1, col + 1, row + 2, col + 2))
-				// 	createPawnMove(row + 2, col + 2, pawn, moveId, BEAT, row + 1, col + 1);
-				// else
-				// 	createPawnMove(row + 1, col + 1, pawn, moveId, MOVE);
-			}
-		}
+	// 		if (col != 7) {
+	// 			Field fieldtoMove = board[row - 1][col + 1];
+	// 			Field fieldToMoveForBeat = board[row - 2][col + 2];
+	// 			if (fieldtoMove.pawn == nullptr) {
+	// 				createPawnMove(row - 1, col + 1, pawn, moveId, MOVE);
+	// 			} else {
+	// 				if (fieldtoMove.pawn->color == !whoseTurn && fieldToMoveForBeat.pawn == nullptr) {
+	// 					createPawnMove(row - 2, col + 2, pawn, moveId, BEAT, row - 1, col + 1);
+	// 					isAnyBeatMove = true;
+	// 				}
+	// 			}
+	// 			// if (checkForBeatMove(row - 1, col + 1, row - 2, col + 2))
+	// 			// 	createPawnMove(row - 2, col + 2, pawn, moveId, BEAT, row - 1, col + 1);
+	// 			// else 
+	// 			// 	createPawnMove(row - 1, col + 1, pawn, moveId, MOVE);
+	// 		}
+	// 	}
+	// 	else if (pawn->color == BLACK  && row != 7 && pawn->isOnBoard) {
+	// 		if (col != 0) {
+	// 			Field fieldtoMove = board[row + 1][col - 1];
+	// 			Field fieldToMoveForBeat = board[row + 2][col - 2];
+	// 			if (fieldtoMove.pawn == nullptr) {
+	// 				createPawnMove(row + 1, col - 1, pawn, moveId, MOVE);
+	// 			} else {
+	// 				if (fieldtoMove.pawn->color == !whoseTurn && fieldToMoveForBeat.pawn == nullptr) {
+	// 					createPawnMove(row + 2, col - 2, pawn, moveId, BEAT, row + 1, col - 1);
+	// 					isAnyBeatMove = true;
+	// 				}
+	// 			}
+	// 			// if (checkForBeatMove(row + 1, col - 1, row + 2, col - 2))
+	// 			// 	createPawnMove(row + 2, col - 2, pawn, moveId, BEAT, row + 1, col - 1);
+	// 			// else
+	// 			// 	createPawnMove(row + 1, col - 1, pawn, moveId, MOVE);
+	// 		}
+	// 		if (col != 7) {
+	// 			Field fieldtoMove = board[row + 1][col + 1];
+	// 			Field fieldToMoveForBeat = board[row + 2][col + 2];
+	// 			if (fieldtoMove.pawn == nullptr) {
+	// 				createPawnMove(row + 1, col + 1, pawn, moveId, MOVE);
+	// 			} else {
+	// 				if (fieldtoMove.pawn->color == !whoseTurn && fieldToMoveForBeat.pawn == nullptr) {
+	// 					createPawnMove(row + 2, col + 2, pawn, moveId, BEAT, row - 1, col + 1);
+	// 					isAnyBeatMove = true;
+	// 				}
+	// 			}
+	// 			// if (checkForBeatMove(row + 1, col + 1, row + 2, col + 2))
+	// 			// 	createPawnMove(row + 2, col + 2, pawn, moveId, BEAT, row + 1, col + 1);
+	// 			// else
+	// 			// 	createPawnMove(row + 1, col + 1, pawn, moveId, MOVE);
+	// 		}
+	// 	}
 	}
 
-	if (blackBeated == 12) {
-		wxLogMessage("White won the game");
-	} 
-	if (whiteBeated == 12) {
-		wxLogMessage("Black won the game");
-	}
+	//game ending
+	// if (blackBeated == 12) {
+	// 	wxLogMessage("White won the game");
+	// } 
+	// if (whiteBeated == 12) {
+	// 	wxLogMessage("Black won the game");
+	// }
 
 
 }
@@ -455,6 +471,27 @@ void MainFrame::beatPawn(Pawn* pawn) {
 	pawn->isOnBoard = false;
 	pawn->pawnButton->Destroy();
 	pawn->pawnButton = nullptr;
+}
+
+void MainFrame::getDestinationCoordinates(Direction direction, int& row, int& col) {
+	switch (direction) {
+				case TOP_LEFT:
+					row -= 1;
+					col -= 1;
+					break;
+				case TOP_RIGHT:
+					row -= 1;
+					col += 1;
+					break;
+				case BOTTOM_LEFT:
+					row += 1;
+					col -= 1;
+					break;
+				case BOTTOM_RIGHT:
+					row += 1;
+					col += 1;
+					break;
+			}
 }
 
 // void MainFrame::showEscapeMenu(wxKeyEvent& evt) {

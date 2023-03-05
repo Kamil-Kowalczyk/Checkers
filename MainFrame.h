@@ -6,8 +6,15 @@
 #include "ImagePanel.h"
 #include "PawnMove.h"
 #include <list>
+#include <set>
 #include <wx/display.h>
 
+enum Direction {
+	TOP_RIGHT,
+	TOP_LEFT,
+	BOTTOM_RIGHT,
+	BOTTOM_LEFT
+};
 
 class MainFrame : public wxFrame
 {
@@ -26,5 +33,6 @@ public:
 	void checkForPawnBeatMove(Pawn* pawn);
 	bool checkForBeatMove(int row, int col, int destRow, int destCol);
 	void beatPawn(Pawn* pawn);
+	void getDestinationCoordinates(Direction direction, int& row, int& col);
 };
 
