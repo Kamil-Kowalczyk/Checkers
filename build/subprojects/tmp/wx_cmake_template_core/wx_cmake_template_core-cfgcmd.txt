@@ -1,0 +1,1 @@
+cmd='/usr/bin/cmake;-DCMAKE_BUILD_TYPE=Debug;-DwxWidgets_ROOT_DIR=;-DENV_WX_CONFIG=;-GUnix Makefiles;-C<TMP_DIR>/wx_cmake_template_core-cache-$<CONFIG>.cmake;<SOURCE_DIR><SOURCE_SUBDIR>'
