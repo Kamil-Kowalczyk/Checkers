@@ -61,21 +61,22 @@ void MainFrame::checkBoard() {
 			for (Direction direction: {BOTTOM_LEFT, BOTTOM_RIGHT, TOP_LEFT, TOP_RIGHT}) {
 				destRow = pawn->row;
 				destCol = pawn->col;
-				getDestinationCoordinates(direction, destRow, destCol);
+				incrementDestinationCoordinates(direction, destRow, destCol);
 				if (destRow >= 0 && destRow <= 7 && destCol >= 0 && destCol <= 7) {
 					Field field = board[destRow][destCol];
 					if (field.pawn != nullptr ) {
 						if (field.pawn->color != whoseTurn) {
 							std::set<Pawn*> pawnsToBeat = {field.pawn};
-							getDestinationCoordinates(direction, destRow, destCol);
+							incrementDestinationCoordinates(direction, destRow, destCol);
 							field = board[destRow][destCol];
 							if (destRow >= 0 && destRow <= 7 && destCol >= 0 && destCol <= 7 && field.pawn == nullptr) {
-								createPawnMove(destRow, destCol, pawn, moveId, BEAT, pawnsToBeat);
+								Direction directionToErase = getCounterDirection(direction);
+								checkForBeatMove(destRow, destCol, pawn, directionToErase, pawnsToBeat);
 								isAnyBeatMove = true;
 							}
 						}
 					} else if (directions.count(direction) == 1) {
-						createPawnMove(destRow, destCol, pawn, moveId, MOVE);
+						createPawnMove(destRow, destCol, pawn, pawnMoves.size(), MOVE);
 					}
 				}
 			}
@@ -324,6 +325,7 @@ void MainFrame::onPawnMoveClick(wxCommandEvent& evt) {
 	isAnyBeatMove = false;
 	pawnMoves.clear();
 	whoseTurn = whoseTurn == WHITE ? BLACK : WHITE;
+	id = 0;
 
 	checkBoard();
 
@@ -418,14 +420,14 @@ void MainFrame::clearPawnMoveButtons() {
 	}
 }
 
-void MainFrame::createPawnMove(int row, int col, Pawn* pawn, int& moveId, MoveType moveType, std::set<Pawn*> pawnsToBeat) {
+void MainFrame::createPawnMove(int row, int col, Pawn* pawn, int moveId, MoveType moveType, std::set<Pawn*> pawnsToBeat) {
 	PawnMove* pawnMove = new PawnMove(row, col, pawn, size, moveType, moveId);
 	pawnMove->moveButton = nullptr;
 	pawnMove->pawnsToBeat = pawnsToBeat;
 	pawn->isMovable = true;
 	pawnMoves.push_back(pawnMove);
 	//change the place of incrementation of moveId variable
-	moveId++;
+	//moveId++;
 }
 
 void MainFrame::createBoard() {
@@ -471,13 +473,37 @@ void MainFrame::putPawnsOnBoard() {
 	}
 }
 
-bool MainFrame::checkForBeatMove(int row, int col, int destRow, int destCol) {
-	if (board[row][col].pawn != nullptr && board[row][col].pawn->color != whoseTurn && board[destRow][destCol].pawn == nullptr 
-		&& destRow < 8 && destRow > 0 && destCol < 8 && destCol > 0) {
-		isAnyBeatMove = true;
-		return true;
+//null direction will result in less code in function searvhing for all moves
+void MainFrame::checkForBeatMove(int row, int col, Pawn* pawn, Direction directionToErase, std::set<Pawn*> pawnsToBeat) {
+	std::set<Direction> directions = {BOTTOM_LEFT, BOTTOM_RIGHT, TOP_LEFT, TOP_RIGHT};
+	directions.erase(directionToErase);
+	int numberOfPawnsToBeatAtBeginning = pawnsToBeat.size();
+
+	for (Direction direction : directions) {
+		int destRow = row;
+		int destCol = col;
+		incrementDestinationCoordinates(direction, destRow, destCol);
+		if (destRow >= 0 && destRow <= 7 && destCol >= 0 && destCol <= 7) {
+			Field field = board[destRow][destCol];
+			if (field.pawn != nullptr ) {
+				if (field.pawn->color != whoseTurn) {
+					Pawn* pawnToBeat = field.pawn;
+					incrementDestinationCoordinates(direction, destRow, destCol);
+					if (destRow >= 0 && destRow <= 7 && destCol >= 0 && destCol <= 7) {
+						field = board[destRow][destCol];
+						if (field.pawn == nullptr) {
+							pawnsToBeat.insert(pawnToBeat);
+							Direction directionToErase = getCounterDirection(direction);
+							checkForBeatMove(destRow, destCol, pawn, directionToErase, pawnsToBeat);
+						}
+					}
+				}
+			}
+		}
 	}
-	return false;
+	if (numberOfPawnsToBeatAtBeginning == pawnsToBeat.size()) {
+		createPawnMove(row, col, pawn, pawnMoves.size(), BEAT, pawnsToBeat);
+	}
 }
 
 void MainFrame::beatPawn(Pawn* pawn) {
@@ -486,7 +512,7 @@ void MainFrame::beatPawn(Pawn* pawn) {
 	pawn->pawnButton = nullptr;
 }
 
-void MainFrame::getDestinationCoordinates(Direction direction, int& row, int& col) {
+void MainFrame::incrementDestinationCoordinates(Direction direction, int& row, int& col) {
 	switch (direction) {
 				case TOP_LEFT:
 					row -= 1;
@@ -505,6 +531,25 @@ void MainFrame::getDestinationCoordinates(Direction direction, int& row, int& co
 					col += 1;
 					break;
 			}
+}
+
+Direction MainFrame::getCounterDirection(Direction direction) {
+	Direction counterDirection;
+	switch(direction) {
+		case TOP_LEFT:
+			counterDirection = BOTTOM_RIGHT;
+			break;
+		case TOP_RIGHT:
+			counterDirection = BOTTOM_LEFT;
+			break;
+		case BOTTOM_LEFT:
+			counterDirection = TOP_RIGHT;
+			break;
+		case BOTTOM_RIGHT:
+			counterDirection = TOP_LEFT;
+			break;
+	}
+	return counterDirection;
 }
 
 // void MainFrame::showEscapeMenu(wxKeyEvent& evt) {

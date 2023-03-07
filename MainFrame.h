@@ -27,12 +27,13 @@ public:
 	void createPawnMoveButton(PawnMove* move);
 	void createPawnButton(Pawn* pawn);
 	void clearPawnMoveButtons();
-	void createPawnMove(int row, int col, Pawn* pawn, int& moveId, MoveType moveType, std::set<Pawn*> pawnsToBeat = {});
+	void createPawnMove(int row, int col, Pawn* pawn, int moveId, MoveType moveType, std::set<Pawn*> pawnsToBeat = {});
 	void createBoard();
 	void putPawnsOnBoard();
 	void checkForPawnBeatMove(Pawn* pawn);
-	bool checkForBeatMove(int row, int col, int destRow, int destCol);
+	void checkForBeatMove(int row, int col, Pawn* pawn, Direction direction, std::set<Pawn*> pawnsToBeat);
 	void beatPawn(Pawn* pawn);
-	void getDestinationCoordinates(Direction direction, int& row, int& col);
+	void incrementDestinationCoordinates(Direction direction, int& row, int& col);
+	Direction getCounterDirection(Direction direction);
 };
 
