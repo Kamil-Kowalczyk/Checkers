@@ -1,13 +1,12 @@
 #include "PawnMove.h"
 
-PawnMove::PawnMove(int row, int col, int size, MoveType moveType, int id, int rowToBeat, int colToBeat) {
+PawnMove::PawnMove(int row, int col, Pawn* pawn, int size, MoveType moveType, int id) {
 	this->row = row;
 	this->col = col;
 	this->size = size;
 	this->moveType = moveType;
 	this->id = id;
-	this->rowToBeat = rowToBeat;
-	this->colToBeat = colToBeat;
+	this->pawn = pawn;
 	//this->mainFramePointer = mainFramePointer;
 }
 PawnMove::~PawnMove() {

@@ -1,6 +1,7 @@
 #pragma once
 #include <wx/wx.h>
 #include <list>
+#include <set>
 #include "Pawn.h"
 
 
@@ -18,12 +19,11 @@ public:
 	int id;
 	wxButton* moveButton;
 	MoveType moveType;
-	std::list<Pawn*> pawns;
-	int rowToBeat;
-	int colToBeat;
+	Pawn* pawn;
+	std::set<Pawn*> pawnsToBeat;
 	//wxImagePanel* context;
 	//MainFrame* mainFramePointer;
-	PawnMove(int row, int col, int size, MoveType moveType, int id, int rowToBeat, int colToBeat);
+	PawnMove(int row, int col, Pawn* pawn, int size, MoveType moveType, int id);
 	~PawnMove();
 	//void createButton();
 };

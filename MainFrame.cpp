@@ -50,6 +50,43 @@ void MainFrame::checkBoard() {
 		Pawn* pawn = &pawns[i];
 		std::set <Direction> directions;
 		if (pawn->isOnBoard && pawn->color == whoseTurn) {
+			// if (pawn->color == WHITE) {
+			// 	directions.insert(TOP_LEFT);
+			// 	directions.insert(TOP_RIGHT);
+			// } else {
+			// 	directions.insert(BOTTOM_LEFT);
+			// 	directions.insert(BOTTOM_RIGHT);
+			// }
+			directions = {BOTTOM_LEFT, BOTTOM_RIGHT, TOP_LEFT, TOP_RIGHT};
+		
+
+
+			for (Direction direction: directions) {
+				destRow = pawn->row;
+				destCol = pawn->col;
+				getDestinationCoordinates(direction, destRow, destCol);
+				if (destRow >= 0 && destRow <= 7 && destCol >= 0 && destCol <= 7) {
+					Field field = board[destRow][destCol];
+					// if (field.pawn == nullptr) {
+					// 	if (destRow >= 0 && destRow <= 7 && destCol >= 0 && destCol <= 7) {
+					// 		createPawnMove(destRow, destCol, pawn, moveId, MOVE);
+					// 	}
+					// } else
+					if (field.pawn != nullptr ) {
+						if (field.pawn->color != whoseTurn) {
+							std::set<Pawn*> pawnsToBeat = {field.pawn};
+							getDestinationCoordinates(direction, destRow, destCol);
+							field = board[destRow][destCol];
+							if (destRow >= 0 && destRow <= 7 && destCol >= 0 && destCol <= 7 && field.pawn == nullptr) {
+								createPawnMove(destRow, destCol, pawn, moveId, BEAT, pawnsToBeat);
+								isAnyBeatMove = true;
+							}
+						}
+					}
+				}
+			}
+			directions.clear();
+
 			if (pawn->color == WHITE) {
 				directions.insert(TOP_LEFT);
 				directions.insert(TOP_RIGHT);
@@ -57,18 +94,20 @@ void MainFrame::checkBoard() {
 				directions.insert(BOTTOM_LEFT);
 				directions.insert(BOTTOM_RIGHT);
 			}
-		}
-		for (Direction direction: directions) {
-			destRow = pawn->row;
-			destCol = pawn->col;
-			getDestinationCoordinates(direction, destRow, destCol);
-			if (board[destRow][destCol].pawn == nullptr) {
+
+			for (Direction direction: directions) {
+				destRow = pawn->row;
+				destCol = pawn->col;
+				getDestinationCoordinates(direction, destRow, destCol);
 				if (destRow >= 0 && destRow <= 7 && destCol >= 0 && destCol <= 7) {
-					createPawnMove(destRow, destCol, pawn, moveId, MOVE);
+					Field field = board[destRow][destCol];
+					if (field.pawn == nullptr) {
+						createPawnMove(destRow, destCol, pawn, moveId, MOVE);
+					}
 				}
+				
 			}
 		}
-		directions.clear();
 
 		//game ending
 		// if (!pawn->isOnBoard) {
@@ -190,7 +229,7 @@ void MainFrame::onPawnClick(wxCommandEvent& evt) {
 			auto iter = std::next(pawnMoves.begin(), i);
 			PawnMove* pawnMove = *iter;
 
-			if (pawnMove->pawns.back() == pawn && pawnMove->moveType == wantedType) {
+			if (pawnMove->pawn == pawn && pawnMove->moveType == wantedType) {
 				createPawnMoveButton(pawnMove);
 			}
 		}
@@ -300,8 +339,10 @@ void MainFrame::onPawnMoveClick(wxCommandEvent& evt) {
 	}
 	else {
 		board[pawnToMove->row][pawnToMove->col].erasePawn();
-		beatPawn(board[move->rowToBeat][move->colToBeat].pawn);
-		board[move->rowToBeat][move->colToBeat].erasePawn();
+		for (Pawn* pawn: move->pawnsToBeat) {
+			beatPawn(board[pawn->row][pawn->col].pawn);
+			board[pawn->row][pawn->col].erasePawn();
+		}
 		board[move->row][move->col].putPawn(pawnToMove);
 		pawnToMove->pawnButton->SetPosition(wxPoint(move->col * size + (size * 0.2), move->row * size + (size * 0.2)));
 	}
@@ -405,10 +446,10 @@ void MainFrame::clearPawnMoveButtons() {
 	}
 }
 
-void MainFrame::createPawnMove(int row, int col, Pawn* pawn, int& moveId, MoveType moveType, int rowToBeat, int colToBeat) {
-	PawnMove* pawnMove = new PawnMove(row, col, size, moveType, moveId, rowToBeat, colToBeat);
-	pawnMove->pawns.push_back(pawn);
+void MainFrame::createPawnMove(int row, int col, Pawn* pawn, int& moveId, MoveType moveType, std::set<Pawn*> pawnsToBeat) {
+	PawnMove* pawnMove = new PawnMove(row, col, pawn, size, moveType, moveId);
 	pawnMove->moveButton = nullptr;
+	pawnMove->pawnsToBeat = pawnsToBeat;
 	pawn->isMovable = true;
 	pawnMoves.push_back(pawnMove);
 	//change the place of incrementation of moveId variable

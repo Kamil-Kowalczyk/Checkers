@@ -27,7 +27,7 @@ public:
 	void createPawnMoveButton(PawnMove* move);
 	void createPawnButton(Pawn* pawn);
 	void clearPawnMoveButtons();
-	void createPawnMove(int row, int col, Pawn* pawn, int& moveId, MoveType moveType, int rowToBeat = 100, int colToBeat = 100);
+	void createPawnMove(int row, int col, Pawn* pawn, int& moveId, MoveType moveType, std::set<Pawn*> pawnsToBeat = {});
 	void createBoard();
 	void putPawnsOnBoard();
 	void checkForPawnBeatMove(Pawn* pawn);
