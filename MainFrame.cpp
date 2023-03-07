@@ -48,30 +48,22 @@ void MainFrame::checkBoard() {
 
 	for (int i = 0; i < 24; i++) {
 		Pawn* pawn = &pawns[i];
-		std::set <Direction> directions;
+		std::set <Direction> directions = {};
 		if (pawn->isOnBoard && pawn->color == whoseTurn) {
-			// if (pawn->color == WHITE) {
-			// 	directions.insert(TOP_LEFT);
-			// 	directions.insert(TOP_RIGHT);
-			// } else {
-			// 	directions.insert(BOTTOM_LEFT);
-			// 	directions.insert(BOTTOM_RIGHT);
-			// }
-			directions = {BOTTOM_LEFT, BOTTOM_RIGHT, TOP_LEFT, TOP_RIGHT};
-		
+			if (pawn->color == WHITE) {
+				directions.insert(TOP_LEFT);
+				directions.insert(TOP_RIGHT);
+			} else {
+				directions.insert(BOTTOM_LEFT);
+				directions.insert(BOTTOM_RIGHT);
+			}
 
-
-			for (Direction direction: directions) {
+			for (Direction direction: {BOTTOM_LEFT, BOTTOM_RIGHT, TOP_LEFT, TOP_RIGHT}) {
 				destRow = pawn->row;
 				destCol = pawn->col;
 				getDestinationCoordinates(direction, destRow, destCol);
 				if (destRow >= 0 && destRow <= 7 && destCol >= 0 && destCol <= 7) {
 					Field field = board[destRow][destCol];
-					// if (field.pawn == nullptr) {
-					// 	if (destRow >= 0 && destRow <= 7 && destCol >= 0 && destCol <= 7) {
-					// 		createPawnMove(destRow, destCol, pawn, moveId, MOVE);
-					// 	}
-					// } else
 					if (field.pawn != nullptr ) {
 						if (field.pawn->color != whoseTurn) {
 							std::set<Pawn*> pawnsToBeat = {field.pawn};
@@ -82,30 +74,10 @@ void MainFrame::checkBoard() {
 								isAnyBeatMove = true;
 							}
 						}
-					}
-				}
-			}
-			directions.clear();
-
-			if (pawn->color == WHITE) {
-				directions.insert(TOP_LEFT);
-				directions.insert(TOP_RIGHT);
-			} else {
-				directions.insert(BOTTOM_LEFT);
-				directions.insert(BOTTOM_RIGHT);
-			}
-
-			for (Direction direction: directions) {
-				destRow = pawn->row;
-				destCol = pawn->col;
-				getDestinationCoordinates(direction, destRow, destCol);
-				if (destRow >= 0 && destRow <= 7 && destCol >= 0 && destCol <= 7) {
-					Field field = board[destRow][destCol];
-					if (field.pawn == nullptr) {
+					} else if (directions.count(direction) == 1) {
 						createPawnMove(destRow, destCol, pawn, moveId, MOVE);
 					}
 				}
-				
 			}
 		}
 
