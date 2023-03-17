@@ -7,11 +7,10 @@ Pawn::Pawn() {
 	this->row = -1;
 	this->onBoard = false;*/
 }
-Pawn::Pawn(Color color, int row, int col, int size, bool onBoard) {
+Pawn::Pawn(Color color, int row, int col, bool onBoard) {
 	this->color = color;
 	this->col = col;
 	this->row = row;
-	this->size = size;
 	this->isOnBoard = onBoard;
 	this->isMovable = false;
 	//this->context = context;

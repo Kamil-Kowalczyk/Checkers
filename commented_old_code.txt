@@ -1,0 +1,205 @@
+// checking for moves
+	// 	int row = pawn->row;
+	// 	int col = pawn->col;
+	// 	if (pawn->color == WHITE && row != 0 && pawn->isOnBoard) {
+	// 		if (col != 0) {
+	// 			Field fieldtoMove = board[row - 1][col - 1];
+	// 			Field fieldToMoveForBeat = board[row - 2][col - 2];
+	// 			if (fieldtoMove.pawn == nullptr) {
+	// 				createPawnMove(row - 1, col - 1, pawn, moveId, MOVE);
+	// 			} else {
+	// 				if (fieldtoMove.pawn->color == !whoseTurn && fieldToMoveForBeat.pawn == nullptr) {
+	// 					createPawnMove(row - 2, col - 2, pawn, moveId, BEAT, row - 1, col - 1);
+	// 					isAnyBeatMove = true;
+	// 				}
+	// 			}
+
+	// 			// if (checkForBeatMove(row - 1, col - 1, row - 2, col - 2))
+	// 			// 	createPawnMove(row - 2, col - 2, pawn, moveId, BEAT, row - 1, col - 1);
+	// 			// else
+	// 			// 	createPawnMove(row - 1, col - 1, pawn, moveId, MOVE);
+	// 		}
+
+	// 		if (col != 7) {
+	// 			Field fieldtoMove = board[row - 1][col + 1];
+	// 			Field fieldToMoveForBeat = board[row - 2][col + 2];
+	// 			if (fieldtoMove.pawn == nullptr) {
+	// 				createPawnMove(row - 1, col + 1, pawn, moveId, MOVE);
+	// 			} else {
+	// 				if (fieldtoMove.pawn->color == !whoseTurn && fieldToMoveForBeat.pawn == nullptr) {
+	// 					createPawnMove(row - 2, col + 2, pawn, moveId, BEAT, row - 1, col + 1);
+	// 					isAnyBeatMove = true;
+	// 				}
+	// 			}
+	// 			// if (checkForBeatMove(row - 1, col + 1, row - 2, col + 2))
+	// 			// 	createPawnMove(row - 2, col + 2, pawn, moveId, BEAT, row - 1, col + 1);
+	// 			// else 
+	// 			// 	createPawnMove(row - 1, col + 1, pawn, moveId, MOVE);
+	// 		}
+	// 	}
+	// 	else if (pawn->color == BLACK  && row != 7 && pawn->isOnBoard) {
+	// 		if (col != 0) {
+	// 			Field fieldtoMove = board[row + 1][col - 1];
+	// 			Field fieldToMoveForBeat = board[row + 2][col - 2];
+	// 			if (fieldtoMove.pawn == nullptr) {
+	// 				createPawnMove(row + 1, col - 1, pawn, moveId, MOVE);
+	// 			} else {
+	// 				if (fieldtoMove.pawn->color == !whoseTurn && fieldToMoveForBeat.pawn == nullptr) {
+	// 					createPawnMove(row + 2, col - 2, pawn, moveId, BEAT, row + 1, col - 1);
+	// 					isAnyBeatMove = true;
+	// 				}
+	// 			}
+	// 			// if (checkForBeatMove(row + 1, col - 1, row + 2, col - 2))
+	// 			// 	createPawnMove(row + 2, col - 2, pawn, moveId, BEAT, row + 1, col - 1);
+	// 			// else
+	// 			// 	createPawnMove(row + 1, col - 1, pawn, moveId, MOVE);
+	// 		}
+	// 		if (col != 7) {
+	// 			Field fieldtoMove = board[row + 1][col + 1];
+	// 			Field fieldToMoveForBeat = board[row + 2][col + 2];
+	// 			if (fieldtoMove.pawn == nullptr) {
+	// 				createPawnMove(row + 1, col + 1, pawn, moveId, MOVE);
+	// 			} else {
+	// 				if (fieldtoMove.pawn->color == !whoseTurn && fieldToMoveForBeat.pawn == nullptr) {
+	// 					createPawnMove(row + 2, col + 2, pawn, moveId, BEAT, row - 1, col + 1);
+	// 					isAnyBeatMove = true;
+	// 				}
+	// 			}
+	// 			// if (checkForBeatMove(row + 1, col + 1, row + 2, col + 2))
+	// 			// 	createPawnMove(row + 2, col + 2, pawn, moveId, BEAT, row + 1, col + 1);
+	// 			// else
+	// 			// 	createPawnMove(row + 1, col + 1, pawn, moveId, MOVE);
+	// 		}
+	// 	}
+
+	/*if (pawns[evt.GetId() - 1000].color == whoseTurn) {
+		pawnToMove = &pawns[evt.GetId() - 1000];
+		Color pawnColor = pawnToMove->color;
+		int x = pawnToMove->pawnButton->GetPosition().x;
+		int y = pawnToMove->pawnButton->GetPosition().y;
+		wxPoint coordinates[2];
+
+		if (possibleMoveFields[0].moveButton != nullptr) {
+			possibleMoveFields[0].moveButton->Destroy();
+			possibleMoveFields[0].moveButton = nullptr;
+		}
+
+		if (possibleMoveFields[1].moveButton != nullptr) {
+			possibleMoveFields[1].moveButton->Destroy();
+			possibleMoveFields[1].moveButton = nullptr;
+
+		}*/
+
+		//todo if with red button
+
+		/*if (pawnColor == BLACK) {
+			coordinates[0] = wxPoint(x + 75, y + 75);
+			coordinates[1] = wxPoint(x - 75, y + 75);
+
+			possibleMoveFields[0].moveType = MOVE;
+			possibleMoveFields[1].moveType = MOVE;
+
+			for (int i = 0; i < 24; i++) {
+				if (pawns[i].color != pawnToMove->color && pawns[i].onBoard == true) {
+					if (pawns[i].pawnButton->GetPosition() == coordinates[0] && pawns[i].pawnButton->GetPosition() != wxPoint(coordinates[0].x + 75, coordinates[0].y + 75)) {
+						coordinates[0] = wxPoint(coordinates[0].x + 75, coordinates[0].y + 75);
+						possibleMoveFields[0].moveType = BEAT;
+						pawnsToBeat[0] = &pawns[i];
+					}
+					if (pawns[i].pawnButton->GetPosition() == coordinates[1] && pawns[i].pawnButton->GetPosition() != wxPoint(coordinates[1].x - 75, coordinates[0].y + 75)) {
+						coordinates[1] = wxPoint(coordinates[1].x - 75, coordinates[1].y + 75);
+						possibleMoveFields[1].moveType = BEAT;
+						pawnsToBeat[1] = &pawns[i];
+					}
+				}
+			}
+		}
+		else {
+			coordinates[0] = wxPoint(x + 75, y - 75);
+			coordinates[1] = wxPoint(x - 75, y - 75);
+			possibleMoveFields[0].moveType = MOVE;
+			possibleMoveFields[1].moveType = MOVE;
+
+			for (int i = 0; i < 24; i++) {
+				if (pawns[i].color != pawnToMove->color && pawns[i].onBoard == true) {
+					if (pawns[i].pawnButton->GetPosition() == coordinates[0] && pawns[i].pawnButton->GetPosition() != wxPoint(coordinates[0].x + 75, coordinates[0].y - 75)) {
+						coordinates[0] = wxPoint(coordinates[0].x + 75, coordinates[0].y - 75);
+						possibleMoveFields[0].moveType = BEAT;
+						pawnsToBeat[0] = &pawns[i];
+					}
+					if (pawns[i].pawnButton->GetPosition() == coordinates[1] && pawns[i].pawnButton->GetPosition() != wxPoint(coordinates[1].x - 75, coordinates[0].y - 75)) {
+						coordinates[1] = wxPoint(coordinates[1].x - 75, coordinates[1].y - 75);
+						possibleMoveFields[1].moveType = BEAT;
+						pawnsToBeat[1] = &pawns[i];
+					}
+				}
+			}
+		}
+		
+		if (possibleMoveFields[0].moveType == BEAT) {
+			possibleMoveFields[0].moveButton = new wxButton(panel, 2000, "", coordinates[0], wxSize(45, 45), wxBORDER_NONE);
+			possibleMoveFields[0].moveButton->SetBackgroundColour(wxColor(255, 0, 0));
+			possibleMoveFields[0].moveButton->Bind(wxEVT_BUTTON, &MainFrame::onPossibleBeatFieldClick, mainFramePointer);
+		}
+		if (possibleMoveFields[1].moveType == BEAT) {
+			possibleMoveFields[1].moveButton = new wxButton(panel, 2001, "", coordinates[1], wxSize(45, 45), wxBORDER_NONE);
+			possibleMoveFields[1].moveButton->SetBackgroundColour(wxColor(255, 0, 0));
+			possibleMoveFields[1].moveButton->Bind(wxEVT_BUTTON, &MainFrame::onPossibleBeatFieldClick, mainFramePointer);
+		}
+
+		if (possibleMoveFields[0].moveType == MOVE && possibleMoveFields[1].moveType == MOVE) {
+
+			possibleMoveFields[0].moveButton = new wxButton(panel, 2000, "", coordinates[0], wxSize(45, 45), wxBORDER_NONE);
+			possibleMoveFields[0].moveButton->SetBackgroundColour(wxColor(0, 255, 0));
+			possibleMoveFields[0].moveButton->Bind(wxEVT_BUTTON, &MainFrame::onPossibleMoveFieldClick, mainFramePointer);
+
+			possibleMoveFields[1].moveButton = new wxButton(panel, 2001, "", coordinates[1], wxSize(45, 45), wxBORDER_NONE);
+			possibleMoveFields[1].moveButton->SetBackgroundColour(wxColor(0, 255, 0));
+			possibleMoveFields[1].moveButton->Bind(wxEVT_BUTTON, &MainFrame::onPossibleMoveFieldClick, mainFramePointer);
+
+		}
+		arePossibleMoveFieldsShown = true;
+	}*/
+
+	/*wxPoint possitionToMove = possibleMoveFields[evt.GetId() - 2000].moveButton->GetPosition();
+	pawnToMove->pawnButton->SetPosition(possitionToMove);
+
+	possibleMoveFields[0].moveButton->Destroy();
+	possibleMoveFields[0].moveButton = nullptr;
+	possibleMoveFields[0].moveType = NONE;
+
+	possibleMoveFields[1].moveButton->Destroy();
+	possibleMoveFields[1].moveButton = nullptr;
+	possibleMoveFields[1].moveType = NONE;
+
+	arePossibleMoveFieldsShown = false;
+	whoseTurn = whoseTurn == WHITE ? BLACK : WHITE;*/
+
+	/*wxPoint possitionToMove = possibleMoveFields[evt.GetId() - 2000].moveButton->GetPosition();
+	pawnToMove->pawnButton->SetPosition(possitionToMove);
+
+	for (int i = 0; i < 2; i++) {
+		if (i == evt.GetId() - 2000) {
+			pawnsToBeat[i]->onBoard = false;
+			pawnsToBeat[i]->pawnButton->Destroy();
+			pawnsToBeat[i]->pawnButton = nullptr;
+		}
+	}
+
+	if (possibleMoveFields[0].moveType == BEAT) {
+		possibleMoveFields[0].moveButton->Destroy();
+		possibleMoveFields[0].moveButton = nullptr;
+		
+	}
+
+	if (possibleMoveFields[1].moveType == BEAT) {
+		possibleMoveFields[1].moveButton->Destroy();
+		possibleMoveFields[1].moveButton = nullptr;
+		
+	}
+
+	possibleMoveFields[0].moveType = NONE;
+	possibleMoveFields[1].moveType = NONE;
+
+	arePossibleMoveFieldsShown = false;
+	whoseTurn = whoseTurn == WHITE ? BLACK : WHITE;*/

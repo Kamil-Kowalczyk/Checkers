@@ -10,7 +10,7 @@ public:
 	Color color;
 
 	Field();
-	Field(int& row, int& col, int& size, Color color);
+	Field(int& row, int& col, Color color);
 	~Field();
 
 	void putPawn(Pawn* pawn);

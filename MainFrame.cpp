@@ -15,14 +15,15 @@ Pawn* pawnToMove;
 
 Color whoseTurn = WHITE;
 
-int size = 75;
+const int SIZE = 75;
 int id = 0;
 
 std::list<PawnMove*> pawnMoves;
 
 bool isAnyBeatMove;
+int maxPawnsToBeat;
 
-wxBoxSizer* sizer;
+//wxBoxSizer* sizer;
 
 MainFrame::MainFrame(const wxString& title, const long& style) : wxFrame(nullptr, wxID_ANY, title, wxDefaultPosition, wxDefaultSize, style) {
 	//wxPanel* panel = new wxPanel(this);
@@ -45,9 +46,20 @@ void MainFrame::checkBoard() {
 	int blackBeated = 0;
 	int destRow;
 	int destCol;
+	maxPawnsToBeat = 0;
 
 	for (int i = 0; i < 24; i++) {
 		Pawn* pawn = &pawns[i];
+		if (pawn->color != whoseTurn) {
+			continue;
+		}
+		// if (!pawn->isOnBoard) {
+		// 	if (pawn->color == WHITE) {
+		// 		whiteBeated++;
+		// 	} else {
+		// 		blackBeated++;
+		// 	}
+		// }
 		std::set <Direction> directions = {};
 		if (pawn->isOnBoard && pawn->color == whoseTurn) {
 			if (pawn->color == WHITE) {
@@ -81,94 +93,6 @@ void MainFrame::checkBoard() {
 				}
 			}
 		}
-
-		//game ending
-		// if (!pawn->isOnBoard) {
-		// 	if (pawn->color == WHITE) {
-		// 		whiteBeated++;
-		// 	} else {
-		// 		blackBeated++;
-		// 	}
-		// 	continue;
-		// }
-		// if (pawn->color != whoseTurn) {
-		// 	continue;
-		// }
-
-		
-	// checking for moves
-	// 	int row = pawn->row;
-	// 	int col = pawn->col;
-	// 	if (pawn->color == WHITE && row != 0 && pawn->isOnBoard) {
-	// 		if (col != 0) {
-	// 			Field fieldtoMove = board[row - 1][col - 1];
-	// 			Field fieldToMoveForBeat = board[row - 2][col - 2];
-	// 			if (fieldtoMove.pawn == nullptr) {
-	// 				createPawnMove(row - 1, col - 1, pawn, moveId, MOVE);
-	// 			} else {
-	// 				if (fieldtoMove.pawn->color == !whoseTurn && fieldToMoveForBeat.pawn == nullptr) {
-	// 					createPawnMove(row - 2, col - 2, pawn, moveId, BEAT, row - 1, col - 1);
-	// 					isAnyBeatMove = true;
-	// 				}
-	// 			}
-
-	// 			// if (checkForBeatMove(row - 1, col - 1, row - 2, col - 2))
-	// 			// 	createPawnMove(row - 2, col - 2, pawn, moveId, BEAT, row - 1, col - 1);
-	// 			// else
-	// 			// 	createPawnMove(row - 1, col - 1, pawn, moveId, MOVE);
-	// 		}
-
-	// 		if (col != 7) {
-	// 			Field fieldtoMove = board[row - 1][col + 1];
-	// 			Field fieldToMoveForBeat = board[row - 2][col + 2];
-	// 			if (fieldtoMove.pawn == nullptr) {
-	// 				createPawnMove(row - 1, col + 1, pawn, moveId, MOVE);
-	// 			} else {
-	// 				if (fieldtoMove.pawn->color == !whoseTurn && fieldToMoveForBeat.pawn == nullptr) {
-	// 					createPawnMove(row - 2, col + 2, pawn, moveId, BEAT, row - 1, col + 1);
-	// 					isAnyBeatMove = true;
-	// 				}
-	// 			}
-	// 			// if (checkForBeatMove(row - 1, col + 1, row - 2, col + 2))
-	// 			// 	createPawnMove(row - 2, col + 2, pawn, moveId, BEAT, row - 1, col + 1);
-	// 			// else 
-	// 			// 	createPawnMove(row - 1, col + 1, pawn, moveId, MOVE);
-	// 		}
-	// 	}
-	// 	else if (pawn->color == BLACK  && row != 7 && pawn->isOnBoard) {
-	// 		if (col != 0) {
-	// 			Field fieldtoMove = board[row + 1][col - 1];
-	// 			Field fieldToMoveForBeat = board[row + 2][col - 2];
-	// 			if (fieldtoMove.pawn == nullptr) {
-	// 				createPawnMove(row + 1, col - 1, pawn, moveId, MOVE);
-	// 			} else {
-	// 				if (fieldtoMove.pawn->color == !whoseTurn && fieldToMoveForBeat.pawn == nullptr) {
-	// 					createPawnMove(row + 2, col - 2, pawn, moveId, BEAT, row + 1, col - 1);
-	// 					isAnyBeatMove = true;
-	// 				}
-	// 			}
-	// 			// if (checkForBeatMove(row + 1, col - 1, row + 2, col - 2))
-	// 			// 	createPawnMove(row + 2, col - 2, pawn, moveId, BEAT, row + 1, col - 1);
-	// 			// else
-	// 			// 	createPawnMove(row + 1, col - 1, pawn, moveId, MOVE);
-	// 		}
-	// 		if (col != 7) {
-	// 			Field fieldtoMove = board[row + 1][col + 1];
-	// 			Field fieldToMoveForBeat = board[row + 2][col + 2];
-	// 			if (fieldtoMove.pawn == nullptr) {
-	// 				createPawnMove(row + 1, col + 1, pawn, moveId, MOVE);
-	// 			} else {
-	// 				if (fieldtoMove.pawn->color == !whoseTurn && fieldToMoveForBeat.pawn == nullptr) {
-	// 					createPawnMove(row + 2, col + 2, pawn, moveId, BEAT, row - 1, col + 1);
-	// 					isAnyBeatMove = true;
-	// 				}
-	// 			}
-	// 			// if (checkForBeatMove(row + 1, col + 1, row + 2, col + 2))
-	// 			// 	createPawnMove(row + 2, col + 2, pawn, moveId, BEAT, row + 1, col + 1);
-	// 			// else
-	// 			// 	createPawnMove(row + 1, col + 1, pawn, moveId, MOVE);
-	// 		}
-	// 	}
 	}
 
 	//game ending
@@ -203,100 +127,12 @@ void MainFrame::onPawnClick(wxCommandEvent& evt) {
 			PawnMove* pawnMove = *iter;
 
 			if (pawnMove->pawn == pawn && pawnMove->moveType == wantedType) {
-				createPawnMoveButton(pawnMove);
+				if (pawnMove->pawnsToBeat.size() == maxPawnsToBeat) {
+					createPawnMoveButton(pawnMove);
+				}
 			}
 		}
 	}
-	
-
-	/*if (pawns[evt.GetId() - 1000].color == whoseTurn) {
-		pawnToMove = &pawns[evt.GetId() - 1000];
-		Color pawnColor = pawnToMove->color;
-		int x = pawnToMove->pawnButton->GetPosition().x;
-		int y = pawnToMove->pawnButton->GetPosition().y;
-		wxPoint coordinates[2];
-
-		if (possibleMoveFields[0].moveButton != nullptr) {
-			possibleMoveFields[0].moveButton->Destroy();
-			possibleMoveFields[0].moveButton = nullptr;
-		}
-
-		if (possibleMoveFields[1].moveButton != nullptr) {
-			possibleMoveFields[1].moveButton->Destroy();
-			possibleMoveFields[1].moveButton = nullptr;
-
-		}*/
-
-		//todo if with red button
-
-		/*if (pawnColor == BLACK) {
-			coordinates[0] = wxPoint(x + 75, y + 75);
-			coordinates[1] = wxPoint(x - 75, y + 75);
-
-			possibleMoveFields[0].moveType = MOVE;
-			possibleMoveFields[1].moveType = MOVE;
-
-			for (int i = 0; i < 24; i++) {
-				if (pawns[i].color != pawnToMove->color && pawns[i].onBoard == true) {
-					if (pawns[i].pawnButton->GetPosition() == coordinates[0] && pawns[i].pawnButton->GetPosition() != wxPoint(coordinates[0].x + 75, coordinates[0].y + 75)) {
-						coordinates[0] = wxPoint(coordinates[0].x + 75, coordinates[0].y + 75);
-						possibleMoveFields[0].moveType = BEAT;
-						pawnsToBeat[0] = &pawns[i];
-					}
-					if (pawns[i].pawnButton->GetPosition() == coordinates[1] && pawns[i].pawnButton->GetPosition() != wxPoint(coordinates[1].x - 75, coordinates[0].y + 75)) {
-						coordinates[1] = wxPoint(coordinates[1].x - 75, coordinates[1].y + 75);
-						possibleMoveFields[1].moveType = BEAT;
-						pawnsToBeat[1] = &pawns[i];
-					}
-				}
-			}
-		}
-		else {
-			coordinates[0] = wxPoint(x + 75, y - 75);
-			coordinates[1] = wxPoint(x - 75, y - 75);
-			possibleMoveFields[0].moveType = MOVE;
-			possibleMoveFields[1].moveType = MOVE;
-
-			for (int i = 0; i < 24; i++) {
-				if (pawns[i].color != pawnToMove->color && pawns[i].onBoard == true) {
-					if (pawns[i].pawnButton->GetPosition() == coordinates[0] && pawns[i].pawnButton->GetPosition() != wxPoint(coordinates[0].x + 75, coordinates[0].y - 75)) {
-						coordinates[0] = wxPoint(coordinates[0].x + 75, coordinates[0].y - 75);
-						possibleMoveFields[0].moveType = BEAT;
-						pawnsToBeat[0] = &pawns[i];
-					}
-					if (pawns[i].pawnButton->GetPosition() == coordinates[1] && pawns[i].pawnButton->GetPosition() != wxPoint(coordinates[1].x - 75, coordinates[0].y - 75)) {
-						coordinates[1] = wxPoint(coordinates[1].x - 75, coordinates[1].y - 75);
-						possibleMoveFields[1].moveType = BEAT;
-						pawnsToBeat[1] = &pawns[i];
-					}
-				}
-			}
-		}
-		
-		if (possibleMoveFields[0].moveType == BEAT) {
-			possibleMoveFields[0].moveButton = new wxButton(panel, 2000, "", coordinates[0], wxSize(45, 45), wxBORDER_NONE);
-			possibleMoveFields[0].moveButton->SetBackgroundColour(wxColor(255, 0, 0));
-			possibleMoveFields[0].moveButton->Bind(wxEVT_BUTTON, &MainFrame::onPossibleBeatFieldClick, mainFramePointer);
-		}
-		if (possibleMoveFields[1].moveType == BEAT) {
-			possibleMoveFields[1].moveButton = new wxButton(panel, 2001, "", coordinates[1], wxSize(45, 45), wxBORDER_NONE);
-			possibleMoveFields[1].moveButton->SetBackgroundColour(wxColor(255, 0, 0));
-			possibleMoveFields[1].moveButton->Bind(wxEVT_BUTTON, &MainFrame::onPossibleBeatFieldClick, mainFramePointer);
-		}
-
-		if (possibleMoveFields[0].moveType == MOVE && possibleMoveFields[1].moveType == MOVE) {
-
-			possibleMoveFields[0].moveButton = new wxButton(panel, 2000, "", coordinates[0], wxSize(45, 45), wxBORDER_NONE);
-			possibleMoveFields[0].moveButton->SetBackgroundColour(wxColor(0, 255, 0));
-			possibleMoveFields[0].moveButton->Bind(wxEVT_BUTTON, &MainFrame::onPossibleMoveFieldClick, mainFramePointer);
-
-			possibleMoveFields[1].moveButton = new wxButton(panel, 2001, "", coordinates[1], wxSize(45, 45), wxBORDER_NONE);
-			possibleMoveFields[1].moveButton->SetBackgroundColour(wxColor(0, 255, 0));
-			possibleMoveFields[1].moveButton->Bind(wxEVT_BUTTON, &MainFrame::onPossibleMoveFieldClick, mainFramePointer);
-
-		}
-		arePossibleMoveFieldsShown = true;
-	}*/
 }
 
 void MainFrame::onPawnMoveClick(wxCommandEvent& evt) {
@@ -308,7 +144,7 @@ void MainFrame::onPawnMoveClick(wxCommandEvent& evt) {
 	if (move->moveType == MOVE) {
 		board[pawnToMove->row][pawnToMove->col].erasePawn();
 		board[move->row][move->col].putPawn(pawnToMove);
-		pawnToMove->pawnButton->SetPosition(wxPoint(move->col * size + (size * 0.2), move->row * size + (size * 0.2)));
+		pawnToMove->pawnButton->SetPosition(wxPoint(move->col * SIZE + (SIZE * 0.2), move->row * SIZE + (SIZE * 0.2)));
 	}
 	else {
 		board[pawnToMove->row][pawnToMove->col].erasePawn();
@@ -317,7 +153,7 @@ void MainFrame::onPawnMoveClick(wxCommandEvent& evt) {
 			board[pawn->row][pawn->col].erasePawn();
 		}
 		board[move->row][move->col].putPawn(pawnToMove);
-		pawnToMove->pawnButton->SetPosition(wxPoint(move->col * size + (size * 0.2), move->row * size + (size * 0.2)));
+		pawnToMove->pawnButton->SetPosition(wxPoint(move->col * SIZE + (SIZE * 0.2), move->row * SIZE + (SIZE * 0.2)));
 	}
 	
 	clearPawnMoveButtons();
@@ -328,55 +164,7 @@ void MainFrame::onPawnMoveClick(wxCommandEvent& evt) {
 	id = 0;
 
 	checkBoard();
-
-	/*wxPoint possitionToMove = possibleMoveFields[evt.GetId() - 2000].moveButton->GetPosition();
-	pawnToMove->pawnButton->SetPosition(possitionToMove);
-
-	possibleMoveFields[0].moveButton->Destroy();
-	possibleMoveFields[0].moveButton = nullptr;
-	possibleMoveFields[0].moveType = NONE;
-
-	possibleMoveFields[1].moveButton->Destroy();
-	possibleMoveFields[1].moveButton = nullptr;
-	possibleMoveFields[1].moveType = NONE;
-
-	arePossibleMoveFieldsShown = false;
-	whoseTurn = whoseTurn == WHITE ? BLACK : WHITE;*/
 }
-
-void MainFrame::onPossibleBeatFieldClick(wxCommandEvent& evt) {
-	/*wxPoint possitionToMove = possibleMoveFields[evt.GetId() - 2000].moveButton->GetPosition();
-	pawnToMove->pawnButton->SetPosition(possitionToMove);
-
-	for (int i = 0; i < 2; i++) {
-		if (i == evt.GetId() - 2000) {
-			pawnsToBeat[i]->onBoard = false;
-			pawnsToBeat[i]->pawnButton->Destroy();
-			pawnsToBeat[i]->pawnButton = nullptr;
-		}
-	}
-
-	if (possibleMoveFields[0].moveType == BEAT) {
-		possibleMoveFields[0].moveButton->Destroy();
-		possibleMoveFields[0].moveButton = nullptr;
-		
-	}
-
-	if (possibleMoveFields[1].moveType == BEAT) {
-		possibleMoveFields[1].moveButton->Destroy();
-		possibleMoveFields[1].moveButton = nullptr;
-		
-	}
-
-	possibleMoveFields[0].moveType = NONE;
-	possibleMoveFields[1].moveType = NONE;
-
-	arePossibleMoveFieldsShown = false;
-	whoseTurn = whoseTurn == WHITE ? BLACK : WHITE;*/
-}
-
-
-
 
 void MainFrame::createPawnMoveButton(PawnMove* move) {
 	int red = 0;
@@ -387,8 +175,8 @@ void MainFrame::createPawnMoveButton(PawnMove* move) {
 	else
 		red = 255;
 
-	move->moveButton = new wxButton(panel, move->id, "", wxPoint(move->col * size + (size * 0.2), move->row * size + (size * 0.2)),
-		wxSize(0.6 * size, 0.6 * size), wxBORDER_NONE);
+	move->moveButton = new wxButton(panel, move->id, "", wxPoint(move->col * SIZE + (SIZE * 0.2), move->row * SIZE + (SIZE * 0.2)),
+		wxSize(0.6 * SIZE, 0.6 * SIZE), wxBORDER_NONE);
 	move->moveButton->SetBackgroundColour(wxColor(red, green, 0));
 	move->moveButton->Bind(wxEVT_BUTTON, &MainFrame::onPawnMoveClick, mainFramePointer);
 }
@@ -402,7 +190,7 @@ void MainFrame::createPawnButton(Pawn* pawn) {
 		imageSrc = "assets/white_pawn.png";
 
 	pawn->pawnButton = new wxBitmapButton(panel, 1000 + id, wxBitmap(wxImage(imageSrc, wxBITMAP_TYPE_PNG)),
-		wxPoint(pawn->col * size + (size * 0.2), pawn->row * size + (size * 0.2)), wxSize(0.6 * size, 0.6 * size), wxBORDER_NONE);
+		wxPoint(pawn->col * SIZE + (SIZE * 0.2), pawn->row * SIZE + (SIZE * 0.2)), wxSize(0.6 * SIZE, 0.6 * SIZE), wxBORDER_NONE);
 	pawn->pawnButton->SetBackgroundColour(wxColor(107, 53, 17));
 	id++;
 }
@@ -421,7 +209,7 @@ void MainFrame::clearPawnMoveButtons() {
 }
 
 void MainFrame::createPawnMove(int row, int col, Pawn* pawn, int moveId, MoveType moveType, std::set<Pawn*> pawnsToBeat) {
-	PawnMove* pawnMove = new PawnMove(row, col, pawn, size, moveType, moveId);
+	PawnMove* pawnMove = new PawnMove(row, col, pawn, moveType, moveId);
 	pawnMove->moveButton = nullptr;
 	pawnMove->pawnsToBeat = pawnsToBeat;
 	pawn->isMovable = true;
@@ -443,7 +231,7 @@ void MainFrame::createBoard() {
 			else
 				color = BLACK;
 
-			board[i][j] = Field(i, j, size, color);
+			board[i][j] = Field(i, j, color);
 
 			whiteField = !whiteField;
 		}
@@ -461,7 +249,7 @@ void MainFrame::putPawnsOnBoard() {
 				if (board[i][j].color != BLACK)
 					continue;
 
-				pawns[index] = Pawn(color, i, j, size, false);
+				pawns[index] = Pawn(color, i, j, false);
 				pawns[index].isOnBoard = true;
 				createPawnButton(&pawns[index]);
 				board[i][j].putPawn(&pawns[index]);
@@ -503,6 +291,9 @@ void MainFrame::checkForBeatMove(int row, int col, Pawn* pawn, Direction directi
 	}
 	if (numberOfPawnsToBeatAtBeginning == pawnsToBeat.size()) {
 		createPawnMove(row, col, pawn, pawnMoves.size(), BEAT, pawnsToBeat);
+		if (pawnsToBeat.size() > maxPawnsToBeat) {
+			maxPawnsToBeat = pawnsToBeat.size();
+		}
 	}
 }
 

@@ -22,7 +22,6 @@ public:
 	MainFrame(const wxString& title, const long& style);
 	void onPawnClick(wxCommandEvent& evt);
 	void onPawnMoveClick(wxCommandEvent& evt);
-	void onPossibleBeatFieldClick(wxCommandEvent& evt);
 	void checkBoard();
 	void createPawnMoveButton(PawnMove* move);
 	void createPawnButton(Pawn* pawn);

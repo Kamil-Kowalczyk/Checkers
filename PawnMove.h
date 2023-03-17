@@ -15,7 +15,6 @@ class PawnMove
 public:
 	int row;
 	int col;
-	int size;
 	int id;
 	wxButton* moveButton;
 	MoveType moveType;
@@ -23,7 +22,7 @@ public:
 	std::set<Pawn*> pawnsToBeat;
 	//wxImagePanel* context;
 	//MainFrame* mainFramePointer;
-	PawnMove(int row, int col, Pawn* pawn, int size, MoveType moveType, int id);
+	PawnMove(int row, int col, Pawn* pawn, MoveType moveType, int id);
 	~PawnMove();
 	//void createButton();
 };

@@ -7,10 +7,9 @@ Field::Field() {
 	this->color = NONE;
 	this->pawn = nullptr;*/
 }
-Field::Field(int& row, int& col, int& size, Color color) {
+Field::Field(int& row, int& col, Color color) {
 	this->col = col;
 	this->row = row;
-	this->size = size;
 	this->color = color;
 	this->pawn = nullptr;
 }

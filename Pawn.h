@@ -14,7 +14,6 @@ public:
 	Color color;
 	int col;
 	int row;
-	int size;
 	bool isOnBoard;
 	bool isMovable;
 	//std::list<PawnMove*> possibleMoves;
@@ -22,7 +21,7 @@ public:
 	//wxImagePanel* context;
 
 	Pawn();
-	Pawn(Color color, int row, int col, int size, bool isOnBoard);
+	Pawn(Color color, int row, int col, bool isOnBoard);
 	~Pawn();
 	//void createButton();
 };
