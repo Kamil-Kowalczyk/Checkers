@@ -13,7 +13,8 @@ enum Direction {
 	TOP_RIGHT,
 	TOP_LEFT,
 	BOTTOM_RIGHT,
-	BOTTOM_LEFT
+	BOTTOM_LEFT,
+	NONE
 };
 
 class MainFrame : public wxFrame

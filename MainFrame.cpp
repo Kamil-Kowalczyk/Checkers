@@ -157,6 +157,15 @@ void MainFrame::onPawnMoveClick(wxCommandEvent& evt) {
 	}
 	
 	clearPawnMoveButtons();
+	Pawn* pawn = move->pawn;
+	if (move->row == 0 && pawn->color == WHITE && pawn->isQueen == false) {
+		pawn->pawnButton->SetBitmap(wxBitmap(wxImage("assets/experimental/white_queen.png", wxBITMAP_TYPE_PNG)));
+		pawn->isQueen = true;
+	} 
+	if (move->row == 7 && pawn->color == BLACK && pawn->isQueen == false) {
+		pawn->pawnButton->SetBitmap(wxBitmap(wxImage("assets/experimental/black_queen.png", wxBITMAP_TYPE_PNG)));
+		pawn->isQueen = true;
+	} 
 
 	isAnyBeatMove = false;
 	pawnMoves.clear();
@@ -185,9 +194,9 @@ void MainFrame::createPawnButton(Pawn* pawn) {
 	wxString imageSrc;
 
 	if (pawn->color == BLACK)
-		imageSrc = "assets/black_pawn.png";
+		imageSrc = "assets/experimental/black_pawn.png";
 	else
-		imageSrc = "assets/white_pawn.png";
+		imageSrc = "assets/experimental/white_pawn.png";
 
 	pawn->pawnButton = new wxBitmapButton(panel, 1000 + id, wxBitmap(wxImage(imageSrc, wxBITMAP_TYPE_PNG)),
 		wxPoint(pawn->col * SIZE + (SIZE * 0.2), pawn->row * SIZE + (SIZE * 0.2)), wxSize(0.6 * SIZE, 0.6 * SIZE), wxBORDER_NONE);

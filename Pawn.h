@@ -16,6 +16,7 @@ public:
 	int row;
 	bool isOnBoard;
 	bool isMovable;
+	bool isQueen;
 	//std::list<PawnMove*> possibleMoves;
 	wxBitmapButton* pawnButton;
 	//wxImagePanel* context;

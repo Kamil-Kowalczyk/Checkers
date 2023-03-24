@@ -13,6 +13,7 @@ Pawn::Pawn(Color color, int row, int col, bool onBoard) {
 	this->row = row;
 	this->isOnBoard = onBoard;
 	this->isMovable = false;
+	this->isQueen = false;
 	//this->context = context;
 
 	//createButton();
