@@ -5,9 +5,11 @@
 class wxImagePanel : public wxPanel
 {
 	wxBitmap image;
+	int margin;
 
 public:
-	wxImagePanel(wxFrame* parent, wxString file, wxBitmapType format);
+	wxImagePanel(wxFrame* parent, wxString file, wxBitmapType format, int margin);
+	wxImagePanel(wxWindow* parent, wxString file, wxBitmapType format, int margin);
 
 	void paintEvent(wxPaintEvent& evt);
 	void paintNow();

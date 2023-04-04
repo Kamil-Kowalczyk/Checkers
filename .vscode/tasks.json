@@ -9,6 +9,7 @@
                 "-g",
                 "*.cpp",
                 "`wx-config --cxxflags --libs`",
+                //"-L/usr/local/lib/libwxsvg.so",
                 "-o",
                 "${fileDirname}/Checkers"
             ],

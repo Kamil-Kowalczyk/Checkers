@@ -8,6 +8,7 @@
 #include <list>
 #include <set>
 #include <wx/display.h>
+#include <math.h>
 
 enum Direction {
 	TOP_RIGHT,
@@ -31,9 +32,16 @@ public:
 	void createBoard();
 	void putPawnsOnBoard();
 	void checkForPawnBeatMove(Pawn* pawn);
-	void checkForBeatMove(int row, int col, Pawn* pawn, Direction direction, std::set<Pawn*> pawnsToBeat);
+	void checkForMove(int row, int col, Pawn* pawn, Direction directionToErase, std::set<Pawn*> pawnsToBeat, Direction queenDirection = NONE);
 	void beatPawn(Pawn* pawn);
 	void incrementDestinationCoordinates(Direction direction, int& row, int& col);
+	void checkForQueenMove();
+	wxPoint buttonPoint(int row, int col);
 	Direction getCounterDirection(Direction direction);
+	void displayInfo(wxCommandEvent& evt);
+	void surrenderGame(wxCommandEvent& evt);
+	void startNewGame(wxCommandEvent& evt);
+	void newGame();
+	void quitApp(wxCommandEvent& evt);
 };
 

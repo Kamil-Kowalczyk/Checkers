@@ -30,13 +30,25 @@ BEGIN_EVENT_TABLE(wxImagePanel, wxPanel)
 	 void wxImagePanel::keyReleased(wxKeyEvent& event) {}
 	 */
 
-	wxImagePanel::wxImagePanel(wxFrame* parent, wxString file, wxBitmapType format) :
+wxImagePanel::wxImagePanel(wxFrame* parent, wxString file, wxBitmapType format, int margin) :
 	wxPanel(parent)
 {
 	// load the file... ideally add a check to see if loading was successful
+	this->margin = margin;
 	image.LoadFile(file, format);
+	//this->SetPosition(wxPoint(margin, margin));
+	this->SetSize(image.GetWidth(), image.GetHeight());
 }
 
+wxImagePanel::wxImagePanel(wxWindow* parent, wxString file, wxBitmapType format, int margin) :
+	wxPanel(parent) 
+{
+	this->margin = margin;
+	image.LoadFile(file, format);
+	//this->SetPosition(wxPoint(margin, margin));
+	this->SetSize(image.GetWidth(), image.GetHeight());
+	
+}
 /*
  * Called by the system of by wxWidgets when the panel needs
  * to be redrawn. You can also trigger this call by
