@@ -1,47 +1,29 @@
 #include "MainFrame.h"
 
-MainFrame* mainFramePointer;
-wxImagePanel* panel;
-wxStaticText* whoseTurnTextUnder;
-wxStaticText* whoWinsTextUnder;
-int SIZE;
-int margin;
-float SCALE;
-wxString assetsFolder; 
-wxSize buttonSize;
-
-Field* board[8][8];
-Pawn* pawns[24];
-Pawn* pawnToMove;
-Color whoseTurn;
-int id;
-std::list<PawnMove*> pawnMoves;
-bool isAnyBeatMove;
-int maxPawnsToBeat;
-
 MainFrame::MainFrame(const wxString& title, const long& style) : wxFrame(nullptr, wxID_ANY, title, wxDefaultPosition, wxDefaultSize, style) {
 	mainFramePointer = this;
-	/*mainPanel = new wxPanel(mainFramePointer, wxID_ANY, wxDefaultPosition);
-	mainPanel->SetBackgroundColour(wxColor(255, 0, 0));*/
 
 	wxDisplay* display = new wxDisplay(wxDisplay::GetFromWindow(mainFramePointer));
 	wxRect* screen = new wxRect(display->GetClientArea());
 	if (screen->height > 1600) {
 		SCALE = 2;
-		SIZE = 200;
+		PIXEL_SIZE_OF_CELL = 240;
+		PIXEL_SIZE_OF_PAWN = 200;
 		assetsFolder = "x2.0";
 	} else if (screen->height > 1000) {
 		SCALE = 1;
-		SIZE = 100;
+		PIXEL_SIZE_OF_CELL = 120;
+		PIXEL_SIZE_OF_PAWN = 100;
 		assetsFolder = "x1.0";
 	} else {
 		SCALE = 0.5;
-		SIZE = 66;
+		PIXEL_SIZE_OF_CELL = 80;
+		PIXEL_SIZE_OF_PAWN = 66;
 		assetsFolder = "x0.5";
 	}
-	//wxLogMessage(wxString::Format("%d", display->GetScaleFactor()));
+	calculateButtonOffset();
 	delete display, screen;
-	buttonSize = wxSize(SIZE, SIZE);
+	buttonSize = wxSize(PIXEL_SIZE_OF_PAWN, PIXEL_SIZE_OF_PAWN);
 	margin = SCALE * 20;
 
 	auto font = this->GetFont();
@@ -50,13 +32,11 @@ MainFrame::MainFrame(const wxString& title, const long& style) : wxFrame(nullptr
 	this->SetFont(font);
 
 	wxBoxSizer* mainSizer = new wxBoxSizer(wxHORIZONTAL);
-	//wxFlexGridSizer* gridSizer = new wxFlexGridSizer(2, wxSize(1000, 1500));
 
 	this->SetBackgroundColour(wxColor("#313947"));
 	wxInitAllImageHandlers();
 	panel = new wxImagePanel(this, "assets/final/" + assetsFolder + "/board.png", wxBITMAP_TYPE_PNG, margin);
 	
-	//sizer->Add(panel, 0, wxLEFT | wxTOP, margin);
 	
 	auto uiPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition);
 	uiPanel->SetBackgroundColour(wxColor("#bdb295"));
@@ -78,7 +58,7 @@ MainFrame::MainFrame(const wxString& title, const long& style) : wxFrame(nullptr
 	whoWinsTextUnder = new wxStaticText(uiPanel, wxID_ANY, "");
 	uiSizer->Add(whoWinsTextUnder, 0, wxALIGN_CENTER_HORIZONTAL | wxTOP, margin);
 
-	wxButton* newGameButton = new wxButton(uiPanel, wxID_ANY, "New game");
+	wxButton* newGameButton = new wxButton(uiPanel, wxID_ANY, "New game", wxDefaultPosition,  wxSize(100, 50));
 	newGameButton->SetForegroundColour(wxColor("#f4f3f1"));
 	newGameButton->SetBackgroundColour(wxColor("#313947"));
 	newGameButton->Bind(wxEVT_BUTTON, &MainFrame::startNewGame, mainFramePointer);
@@ -168,12 +148,6 @@ void MainFrame::onPawnClick(wxCommandEvent& evt) {
 
 	if (pawn->isMovable) {
 		pawnToMove = pawn;
-		// MoveType wantedType;
-
-		// if (isAnyBeatMove)
-		// 	wantedType = BEAT;
-		// else
-		// 	wantedType = MOVE;
 
 		for (int i = 0; i < pawnMoves.size(); i++) {
 			auto iter = std::next(pawnMoves.begin(), i);
@@ -275,8 +249,6 @@ void MainFrame::createPawnMove(int row, int col, Pawn* pawn, int moveId, MoveTyp
 	pawnMove->pawnsToBeat = pawnsToBeat;
 	pawn->isMovable = true;
 	pawnMoves.push_back(pawnMove);
-	//change the place of incrementation of moveId variable
-	//moveId++;
 }
 
 void MainFrame::putPawnsOnBoard() {
@@ -299,10 +271,6 @@ void MainFrame::putPawnsOnBoard() {
 		}
 		color = WHITE;
 	}
-		// pawns[12].pawnButton->SetBitmap(wxBitmap(wxImage("assets/experimental/white_queen.png", wxBITMAP_TYPE_PNG)));
-		// pawns[12].isQueen = true;
-		// pawns[11].pawnButton->SetBitmap(wxBitmap(wxImage("assets/experimental/black_queen.png", wxBITMAP_TYPE_PNG)));
-		// pawns[11].isQueen = true; 
 }
 
 //null direction will result in less code in function searvhing for all moves
@@ -412,7 +380,7 @@ Direction MainFrame::getCounterDirection(Direction direction) {
 }
 
 wxPoint MainFrame::buttonPoint(int row, int col) {
-	return wxPoint((col * ceil(1.2 * SIZE)) + (SIZE * 0.1), (row * ceil(1.2 * SIZE)) + (SIZE * 0.1));
+	return wxPoint((col * PIXEL_SIZE_OF_CELL + PIXEL_OFFSET_OF_BUTTON_POINT), (row * PIXEL_SIZE_OF_CELL + PIXEL_OFFSET_OF_BUTTON_POINT));
 }
 
 void MainFrame::startNewGame(wxCommandEvent& evt) {
@@ -444,7 +412,7 @@ void MainFrame::surrenderGame(wxCommandEvent& evt) {
 }
 
 void MainFrame::displayInfo(wxCommandEvent& evt) {
-	wxMessageBox("Name: Checkers\nAuthor: Kamil Kowalczyk", "Information about program");
+	wxMessageBox("Name: Checkers\nAuthor: Kamil Kowalczyk Wydzial MS, Informatyka profil praktyczny, semestr 1 ", "Information about program");
 }
 
 void MainFrame::newGame() {
@@ -483,4 +451,8 @@ void MainFrame::quitApp(wxCommandEvent& evt) {
 	if (result == wxYES) {
 		mainFramePointer->Close();
 	}
+}
+
+void MainFrame::calculateButtonOffset() {
+	PIXEL_OFFSET_OF_BUTTON_POINT = (PIXEL_SIZE_OF_CELL - PIXEL_SIZE_OF_PAWN) / 2;
 }

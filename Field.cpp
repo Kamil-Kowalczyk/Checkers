@@ -1,19 +1,11 @@
 #include "Field.h"
 
-Field::Field() {
-	/*this->col = 0;
-	this->row = 0;
-	this->size = 0;
-	this->color = NONE;
-	this->pawn = nullptr;*/
-}
-Field::Field(int& row, int& col, Color color) {
+Field::Field(int row, int col, Color color) {
 	this->col = col;
 	this->row = row;
 	this->color = color;
 	this->pawn = nullptr;
 }
-Field::~Field() {}
 
 void Field::putPawn(Pawn* pawn) {
 	this->pawn = pawn;

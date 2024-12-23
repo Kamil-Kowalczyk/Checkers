@@ -6,19 +6,5 @@ PawnMove::PawnMove(int row, int col, Pawn* pawn, MoveType moveType, int id) {
 	this->moveType = moveType;
 	this->id = id;
 	this->pawn = pawn;
-	//this->mainFramePointer = mainFramePointer;
+	this->moveButton = nullptr;
 }
-PawnMove::~PawnMove() {
-
-}
-//void PawnMove::createButton() {
-//	if (moveType == MOVE) {
-//		moveButton = new wxButton(context, id, "", wxPoint(col * size + (size * 0.2), row * size + (size * 0.2)),
-//			wxSize(0.6 * size, 0.6 * size), wxBORDER_NONE);
-//		moveButton->SetBackgroundColour(wxColor(0, 255, 0));
-//		moveButton->Bind(wxEVT_BUTTON, &MainFrame::onMoveClick, mainFramePointer);
-//	}
-//	else {
-//
-//	}
-//}
