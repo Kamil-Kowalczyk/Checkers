@@ -20,7 +20,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
+    <ClInclude Include="direction\Direction.h" />
     <ClInclude Include="Field.h" />
+    <ClInclude Include="Game.h" />
     <ClInclude Include="MainFrame.h" />
     <ClInclude Include="PawnMove.h" />
     <ClInclude Include="Pawn.h" />
@@ -29,7 +31,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
+    <ClCompile Include="direction\Direction.cpp" />
     <ClCompile Include="Field.cpp" />
+    <ClCompile Include="Game.cpp" />
     <ClCompile Include="MainFrame.cpp" />
     <ClCompile Include="PawnMove.cpp" />
     <ClCompile Include="Pawn.cpp" />

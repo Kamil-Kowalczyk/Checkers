@@ -83,123 +83,48 @@ MainFrame::MainFrame(const wxString& title, const long& style) : wxFrame(nullptr
 	uiPanel->SetSizer(uiSizer);
 	this->SetSizer(mainSizer);
 
-	newGame();
-}
-
-void MainFrame::checkBoard() {
-	int moveId = 0;
-	int whiteBeated = 0;
-	int blackBeated = 0;
-	int destRow;
-	int destCol;
-	maxPawnsToBeat = 0;
-
-	for (int i = 0; i < 24; i++) {
-		Pawn* pawn = pawns[i];
-		if (!pawn->isOnBoard) {
-			if (pawn->color == WHITE) {
-				whiteBeated += 1;
-			} else {
-				blackBeated += 1;
-			}
-		} else if (pawn->color == whoseTurn){
-			std::set<Pawn*> pawnsToBeat = {};
-			checkForMove(pawn->row, pawn->col, pawn, NONE, pawnsToBeat);
-		}
-	}
-
-	wxString text;
-	if (whiteBeated == blackBeated) {
-		text = "No one it's a draw";
-		whoWinsTextUnder->SetForegroundColour(wxColor("#0fff4f"));
-	} else if (whiteBeated > blackBeated) {
-		text.append("Black by ");
-		text.append(std::to_string(whiteBeated - blackBeated));
-		text.append(whiteBeated - blackBeated == 1 ? " piece" : " pieces");
-		whoWinsTextUnder->SetForegroundColour(wxColor("#2f2d2d"));
-	} else {
-		text.append("White by ");
-		text.append(std::to_string(blackBeated - whiteBeated));
-		text.append(blackBeated - whiteBeated == 1 ? " piece" : " pieces");
-		whoWinsTextUnder->SetForegroundColour(wxColor("#fbeca6"));
-	}
-	whoWinsTextUnder->SetLabelText(text);
-	whoseTurnTextUnder->SetLabelText(whoseTurn == WHITE ? "White's" : "Black's");
-	whoseTurnTextUnder->SetForegroundColour(wxColor(whoseTurn == WHITE ? "#fbeca6" : "#2f2d2d"));
-
-	if (pawnMoves.size() == 0) {
-		wxString whoWonText;
-		whoWonText.append(whoseTurn == WHITE ? "Black " : "White ");
-		whoWonText.append("won the game!");
-		whoseTurnTextUnder->SetForegroundColour(wxColor("#fc2819"));
-		whoseTurnTextUnder->SetLabelText("No one's");
-		wxMessageBox(whoWonText, "GG!");
-	} 
-
-
+	this->game = new Game();
+	generatePawnsOnBoard();
+	updateTexts();
 }
 
 void MainFrame::onPawnClick(wxCommandEvent& evt) {
 	clearPawnMoveButtons();
 	
-	int pawnButtonId = evt.GetId();
-	Pawn* pawn = pawns[pawnButtonId - 1000];
-	pawnToMove = nullptr;
-
-	if (pawn->isMovable) {
-		pawnToMove = pawn;
-
-		for (int i = 0; i < pawnMoves.size(); i++) {
-			auto iter = std::next(pawnMoves.begin(), i);
-			PawnMove* pawnMove = *iter;
-
-			if (pawnMove->pawn == pawn ) {
-				if (pawnMove->pawnsToBeat.size() == maxPawnsToBeat) {
-					createPawnMoveButton(pawnMove);
-				}
-			}
+	int pawnId = evt.GetId() - 1000;
+	std::list<PawnMove*> pawnMoves = game->handlePawnClick(pawnId);
+	Pawn* clickedPawn = game->getPawnById(pawnId);
+	if (pawnMoves.size() == 0 && clickedPawn->color == game->whoseTurn) {
+		wxString messageText = "This pawn can't be moved as it doesn't have any available moves";
+		if (game->isAnyBeatMove)
+			messageText = "This pawn can't be moved as there are pawns with available beat moves";
+		wxMessageBox(messageText, "Information about available moves");
+	} else {
+		for (PawnMove* move : pawnMoves) {
+			createPawnMoveButton(move);
 		}
 	}
+	
 }
 
 void MainFrame::onPawnMoveClick(wxCommandEvent& evt) {
-	//wxLogMessage(wxString::Format("%d", pawnToMove->pawnButton->GetId()));
-
-	auto iter = std::next(pawnMoves.begin(), evt.GetId());
-	PawnMove* move = *iter;
-
-	if (move->moveType == MOVE) {
-		board[pawnToMove->row][pawnToMove->col]->erasePawn();
-		board[move->row][move->col]->putPawn(pawnToMove);
-		pawnToMove->pawnButton->SetPosition(buttonPoint(move->row, move->col));
-	}
-	else {
-		board[pawnToMove->row][pawnToMove->col]->erasePawn();
-		for (Pawn* pawn: move->pawnsToBeat) {
-			beatPawn(board[pawn->row][pawn->col]->pawn);
-			board[pawn->row][pawn->col]->erasePawn();
-		}
-		board[move->row][move->col]->putPawn(pawnToMove);
-		pawnToMove->pawnButton->SetPosition(buttonPoint(move->row, move->col));
-	}
+	bool hasBecameQueen = game->performMove(evt.GetId());
+	Pawn* pawnToMove = game->pawnToMove;
+	pawnToMove->pawnButton->SetPosition(buttonPoint(pawnToMove->row, pawnToMove->col));
 	
+	if (hasBecameQueen) {
+		if (pawnToMove->color == WHITE)
+			pawnToMove->pawnButton->SetBitmap(wxBitmap(wxImage("assets/final/" + assetsFolder + "/white_queen.png", wxBITMAP_TYPE_PNG)));
+		else 
+			pawnToMove->pawnButton->SetBitmap(wxBitmap(wxImage("assets/final/" + assetsFolder + "/black_queen.png", wxBITMAP_TYPE_PNG)));
+	}
+
 	clearPawnMoveButtons();
-	Pawn* pawn = move->pawn;
-	if (move->row == 0 && pawn->color == WHITE && pawn->isQueen == false) {
-		pawn->pawnButton->SetBitmap(wxBitmap(wxImage("assets/final/" + assetsFolder + "/white_queen.png", wxBITMAP_TYPE_PNG)));
-		pawn->isQueen = true;
-	} 
-	if (move->row == 7 && pawn->color == BLACK && pawn->isQueen == false) {
-		pawn->pawnButton->SetBitmap(wxBitmap(wxImage("assets/final/" + assetsFolder + "/black_queen.png", wxBITMAP_TYPE_PNG)));
-		pawn->isQueen = true;
-	} 
 
-	isAnyBeatMove = false;
-	pawnMoves.clear();
-	whoseTurn = whoseTurn == WHITE ? BLACK : WHITE;
-	id = 0;
+	game->pawnMoves.clear();
 
-	checkBoard();
+	game->checkBoard();
+	updateTexts();
 }
 
 void MainFrame::createPawnMoveButton(PawnMove* move) {
@@ -216,7 +141,7 @@ void MainFrame::createPawnMoveButton(PawnMove* move) {
 	move->moveButton->Bind(wxEVT_BUTTON, &MainFrame::onPawnMoveClick, mainFramePointer);
 }
 
-void MainFrame::createPawnButton(Pawn* pawn) {
+void MainFrame::createPawnButton(Pawn* pawn, int pawnId) {
 	wxString imageSrc;
 
 	if (pawn->color == BLACK)
@@ -224,159 +149,9 @@ void MainFrame::createPawnButton(Pawn* pawn) {
 	else
 		imageSrc = "assets/final/" + assetsFolder + "/white_pawn.png";
 
-	pawn->pawnButton = new wxBitmapButton(panel, 1000 + id, wxBitmap(wxImage(imageSrc, wxBITMAP_TYPE_PNG)),
+	pawn->pawnButton = new wxBitmapButton(panel, 1000 + pawnId, wxBitmap(wxImage(imageSrc, wxBITMAP_TYPE_PNG)),
 		buttonPoint(pawn->row, pawn->col), buttonSize, wxBORDER_NONE);
 	pawn->pawnButton->SetBackgroundColour(wxColor(107, 53, 17));
-	id++;
-}
-
-void MainFrame::clearPawnMoveButtons() {
-	PawnMove* pawnMove;
-	int size = pawnMoves.size();
-	for (int i = 0; i < size; i++) {
-		auto iter = std::next(pawnMoves.begin(), i);
-		pawnMove = *iter;
-		if (pawnMove->moveButton != nullptr){
-			pawnMove->moveButton->Destroy();
-			pawnMove->moveButton = nullptr;
-		}
-	}
-}
-
-void MainFrame::createPawnMove(int row, int col, Pawn* pawn, int moveId, MoveType moveType, std::set<Pawn*> pawnsToBeat) {
-	PawnMove* pawnMove = new PawnMove(row, col, pawn, moveType, moveId);
-	pawnMove->moveButton = nullptr;
-	pawnMove->pawnsToBeat = pawnsToBeat;
-	pawn->isMovable = true;
-	pawnMoves.push_back(pawnMove);
-}
-
-void MainFrame::putPawnsOnBoard() {
-	int index = 0;
-	Color color = BLACK;
-
-	for (int o = 0; o <= 1; o++) {
-		for (int i = o * 5; i < o * 5 + 3; i++) {
-			for (int j = 0; j < 8; j++) {
-				if (board[i][j]->color != BLACK)
-					continue;
-
-				pawns[index] = new Pawn(color, i, j, false);
-				pawns[index]->isOnBoard = true;
-				createPawnButton(pawns[index]);
-				board[i][j]->putPawn(pawns[index]);
-				pawns[index]->pawnButton->Bind(wxEVT_BUTTON, &MainFrame::onPawnClick, this);
-				index++;
-			}
-		}
-		color = WHITE;
-	}
-}
-
-//null direction will result in less code in function searvhing for all moves
-void MainFrame::checkForMove(int row, int col, Pawn* pawn, Direction directionToErase, std::set<Pawn*> pawnsToBeat, Direction queenDirection) {
-	std::set <Direction> directionsWithoutBeat = {};
-	std::set<Direction> directions = {BOTTOM_LEFT, BOTTOM_RIGHT, TOP_LEFT, TOP_RIGHT};
-	std::set<Pawn*> pawnsToBeatLocal;
-	directions.erase(directionToErase);
-	if (pawnsToBeat.size() == 0) {
-		if (pawn->isQueen) {
-			directionsWithoutBeat = {BOTTOM_LEFT, BOTTOM_RIGHT, TOP_LEFT, TOP_RIGHT};
-		} else {
-			if (pawn->color == WHITE) {
-				directionsWithoutBeat.insert(TOP_LEFT);
-				directionsWithoutBeat.insert(TOP_RIGHT);
-			} else {
-				directionsWithoutBeat.insert(BOTTOM_LEFT);
-				directionsWithoutBeat.insert(BOTTOM_RIGHT);
-			}
-		}
-		if (queenDirection != NONE) {
-			directionsWithoutBeat = {queenDirection};
-			directions = {queenDirection};
-		}
-	}
-	int numberOfPawnsToBeatAtBeginning = pawnsToBeat.size();
-
-	for (Direction direction : directions) {
-		int destRow = row;
-		int destCol = col;
-		pawnsToBeatLocal = pawnsToBeat;
-		incrementDestinationCoordinates(direction, destRow, destCol);
-		if (destRow >= 0 && destRow <= 7 && destCol >= 0 && destCol <= 7) {
-			Field* field = board[destRow][destCol];
-			if (field->pawn != nullptr ) {
-				if (field->pawn->color != whoseTurn && pawnsToBeat.count(field->pawn) == 0) {
-					Pawn* pawnToBeat = field->pawn;
-					incrementDestinationCoordinates(direction, destRow, destCol);
-					if (destRow >= 0 && destRow <= 7 && destCol >= 0 && destCol <= 7) {
-						field = board[destRow][destCol];
-						if (field->pawn == nullptr) {
-							pawnsToBeatLocal.insert(pawnToBeat);
-							checkForMove(destRow, destCol, pawn, getCounterDirection(direction), pawnsToBeatLocal);
-						}
-					}
-				}
-			} else if (directionsWithoutBeat.count(direction) == 1) {
-				createPawnMove(destRow, destCol, pawn, pawnMoves.size(), MOVE);
-				if (pawn->isQueen) {
-					checkForMove(destRow, destCol, pawn, getCounterDirection(direction), pawnsToBeatLocal, direction);
-				} 
-			}
-		}
-	}
-	if (numberOfPawnsToBeatAtBeginning == pawnsToBeat.size() && pawnsToBeat.size() != 0) {
-		createPawnMove(row, col, pawn, pawnMoves.size(), BEAT, pawnsToBeat);
-		if (pawnsToBeat.size() > maxPawnsToBeat) {
-			maxPawnsToBeat = pawnsToBeat.size();
-		}
-	}
-}
-
-void MainFrame::beatPawn(Pawn* pawn) {
-	pawn->isOnBoard = false;
-	pawn->pawnButton->Destroy();
-	pawn->pawnButton = nullptr;
-}
-
-void MainFrame::incrementDestinationCoordinates(Direction direction, int& row, int& col) {
-	switch (direction) {
-				case TOP_LEFT:
-					row -= 1;
-					col -= 1;
-					break;
-				case TOP_RIGHT:
-					row -= 1;
-					col += 1;
-					break;
-				case BOTTOM_LEFT:
-					row += 1;
-					col -= 1;
-					break;
-				case BOTTOM_RIGHT:
-					row += 1;
-					col += 1;
-					break;
-			}
-}
-
-Direction MainFrame::getCounterDirection(Direction direction) {
-	Direction counterDirection;
-	switch(direction) {
-		case TOP_LEFT:
-			counterDirection = BOTTOM_RIGHT;
-			break;
-		case TOP_RIGHT:
-			counterDirection = BOTTOM_LEFT;
-			break;
-		case BOTTOM_LEFT:
-			counterDirection = TOP_RIGHT;
-			break;
-		case BOTTOM_RIGHT:
-			counterDirection = TOP_LEFT;
-			break;
-	}
-	return counterDirection;
 }
 
 wxPoint MainFrame::buttonPoint(int row, int col) {
@@ -390,19 +165,9 @@ void MainFrame::startNewGame(wxCommandEvent& evt) {
 
 	switch (result) {
 		case (wxYES):
-			for (int i = 0; i < 8; i++) {
-				for (int j = 0; j < 8; j++) {
-					delete board[i][j];
-				}
-			}
-			for (Pawn* pawn : pawns) {
-				if (pawn->pawnButton != nullptr) {
-					pawn->pawnButton->Destroy();
-				}
-				delete pawn;
-			}
-			clearPawnMoveButtons();
-			newGame();
+			game->newGame();
+			generatePawnsOnBoard();
+			updateTexts();
 			break;
 	}
 }
@@ -412,41 +177,13 @@ void MainFrame::surrenderGame(wxCommandEvent& evt) {
 }
 
 void MainFrame::displayInfo(wxCommandEvent& evt) {
-	wxMessageBox("Name: Checkers\nAuthor: Kamil Kowalczyk Wydzial MS, Informatyka profil praktyczny, semestr 1 ", "Information about program");
-}
-
-void MainFrame::newGame() {
-	pawnToMove = nullptr;
-	bool isAnyBeatMove = false;
-	int maxPawnsToBeat = 0;
-	whoseTurn = WHITE;
-	id = 0;
-
-	bool whiteField = true;
-	Color color;
-
-
-	for (int i = 0; i < 8; i++) {
-		for (int j = 0; j < 8; j++) {
-			if (whiteField)
-				color = WHITE;
-			else
-				color = BLACK;
-
-			board[i][j] = new Field(i, j, color);
-
-			whiteField = !whiteField;
-		}
-		whiteField = !whiteField;
-	}
-	putPawnsOnBoard();
-	checkBoard();
+	wxMessageBox("Name: Checkers\nAuthor: Kamil Kowalczyk Wydzial MS, Informatyka profil praktyczny, semestr 1, grupa lab. 1.1", "Information about program");
 }
 
 void MainFrame::quitApp(wxCommandEvent& evt) {
 	auto result = wxMessageBox(
 		"Are you sure that you want to quit the game?\nThis means that you will lose your actual game!",
-	 	"Qutting the game", wxYES_NO);
+	 	"Quitting the game", wxYES_NO);
 
 	if (result == wxYES) {
 		mainFramePointer->Close();
@@ -455,4 +192,61 @@ void MainFrame::quitApp(wxCommandEvent& evt) {
 
 void MainFrame::calculateButtonOffset() {
 	PIXEL_OFFSET_OF_BUTTON_POINT = (PIXEL_SIZE_OF_CELL - PIXEL_SIZE_OF_PAWN) / 2;
+}
+
+void MainFrame::generatePawnsOnBoard() {
+	int pawnId = 0;
+	for (Pawn* pawn : game->pawns) {
+		createPawnButton(pawn, pawnId);
+		pawn->pawnButton->Bind(wxEVT_BUTTON, &MainFrame::onPawnClick, this);
+		pawnId++;
+	}
+}
+
+void MainFrame::updateTexts() {
+	int whiteBeated = game->whiteBeated;
+	int blackBeated = game->blackBeated;
+	wxString text;
+
+	if (whiteBeated == blackBeated) {
+		text = "No one it's a draw";
+		whoWinsTextUnder->SetForegroundColour(wxColor("#0fff4f"));
+	}
+	else if (whiteBeated > blackBeated) {
+		text.append("Black by ");
+		text.append(std::to_string(whiteBeated - blackBeated));
+		text.append(whiteBeated - blackBeated == 1 ? " piece" : " pieces");
+		whoWinsTextUnder->SetForegroundColour(wxColor("#2f2d2d"));
+	}
+	else {
+		text.append("White by ");
+		text.append(std::to_string(blackBeated - whiteBeated));
+		text.append(blackBeated - whiteBeated == 1 ? " piece" : " pieces");
+		whoWinsTextUnder->SetForegroundColour(wxColor("#fbeca6"));
+	}
+	whoWinsTextUnder->SetLabelText(text);
+	whoseTurnTextUnder->SetLabelText(game->whoseTurn == WHITE ? "White's" : "Black's");
+	whoseTurnTextUnder->SetForegroundColour(wxColor(game->whoseTurn == WHITE ? "#fbeca6" : "#2f2d2d"));
+
+	if (game->pawnMoves.size() == 0) {
+		wxString whoWonText;
+		whoWonText.append(game->whoseTurn == WHITE ? "Black " : "White ");
+		whoWonText.append("won the game!");
+		whoseTurnTextUnder->SetForegroundColour(wxColor("#fc2819"));
+		whoseTurnTextUnder->SetLabelText("No one's");
+		wxMessageBox(whoWonText, "GG!");
+	}
+}
+
+void MainFrame::clearPawnMoveButtons() {
+	PawnMove* pawnMove;
+	int size = game->pawnMoves.size();
+	for (int i = 0; i < size; i++) {
+		auto iter = std::next(game->pawnMoves.begin(), i);
+		pawnMove = *iter;
+		if (pawnMove->moveButton != nullptr) {
+			pawnMove->moveButton->Destroy();
+			pawnMove->moveButton = nullptr;
+		}
+	}
 }
