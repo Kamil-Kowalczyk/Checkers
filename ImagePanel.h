@@ -2,6 +2,10 @@
 
 #include <wx/wx.h>
 
+/*
+* Source: @see https://wiki.wxwidgets.org/An_image_panel
+*/
+
 class wxImagePanel : public wxPanel
 {
 	wxBitmap image;

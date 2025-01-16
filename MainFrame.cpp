@@ -59,24 +59,20 @@ MainFrame::MainFrame(const wxString& title, const long& style) : wxFrame(nullptr
 	uiSizer->Add(whoWinsTextUnder, 0, wxALIGN_CENTER_HORIZONTAL | wxTOP, margin);
 
 	wxButton* newGameButton = new wxButton(uiPanel, wxID_ANY, "New game", wxDefaultPosition,  wxSize(100, 50));
-	newGameButton->SetForegroundColour(wxColor("#f4f3f1"));
-	newGameButton->SetBackgroundColour(wxColor("#313947"));
+	newGameButton->SetForegroundColour(wxColor("#2f2d2d"));
+	newGameButton->SetBackgroundColour(wxColor("#e2e1e1"));
 	newGameButton->Bind(wxEVT_BUTTON, &MainFrame::startNewGame, mainFramePointer);
 	uiSizer->Add(newGameButton, 0, wxALIGN_CENTER_HORIZONTAL | wxTOP, margin);
 
-	// wxButton* surrenderButton = new wxButton(uiPanel, wxID_ANY, "Surrender");
-	// surrenderButton->Bind(wxEVT_BUTTON, &MainFrame::surrenderGame, mainFramePointer);
-	// uiSizer->Add(surrenderButton, 0, wxALIGN_CENTER_HORIZONTAL);
-
 	wxButton* infoButton = new wxButton(uiPanel, wxID_ANY, "Info");
-	infoButton->SetForegroundColour(wxColor("#f4f3f1"));
-	infoButton->SetBackgroundColour(wxColor("#313947"));
+	infoButton->SetForegroundColour(wxColor("#2f2d2d"));
+	infoButton->SetBackgroundColour(wxColor("#e2e1e1"));
 	infoButton->Bind(wxEVT_BUTTON, &MainFrame::displayInfo, mainFramePointer);
 	uiSizer->Add(infoButton, 0, wxALIGN_CENTER_HORIZONTAL | wxTOP, margin);
 	
 	wxButton* quitButton = new wxButton(uiPanel, wxID_ANY, "Quit");
-	quitButton->SetForegroundColour(wxColor("#f4f3f1"));
-	quitButton->SetBackgroundColour(wxColor("#313947"));
+	quitButton->SetForegroundColour(wxColor("#2f2d2d"));
+	quitButton->SetBackgroundColour(wxColor("#e2e1e1"));
 	quitButton->Bind(wxEVT_BUTTON, &MainFrame::quitApp, mainFramePointer);
 	uiSizer->Add(quitButton, 0, wxALIGN_CENTER_HORIZONTAL | wxTOP, margin);
 
@@ -90,19 +86,27 @@ MainFrame::MainFrame(const wxString& title, const long& style) : wxFrame(nullptr
 
 void MainFrame::onPawnClick(wxCommandEvent& evt) {
 	clearPawnMoveButtons();
-	
+	if (game->pawnToMove != nullptr)
+		game->pawnToMove->pawnButton->SetBackgroundColour(wxColor("#6b3511"));
 	int pawnId = evt.GetId() - 1000;
 	std::list<PawnMove*> pawnMoves = game->handlePawnClick(pawnId);
 	Pawn* clickedPawn = game->getPawnById(pawnId);
-	if (pawnMoves.size() == 0 && clickedPawn->color == game->whoseTurn) {
-		wxString messageText = "This pawn can't be moved as it doesn't have any available moves";
-		if (game->isAnyBeatMove)
-			messageText = "This pawn can't be moved as there are pawns with available beat moves";
-		wxMessageBox(messageText, "Information about available moves");
-	} else {
-		for (PawnMove* move : pawnMoves) {
-			createPawnMoveButton(move);
+	if (clickedPawn->color == game->whoseTurn) {
+		if (pawnMoves.size() == 0) {
+			wxString messageText = "This pawn can't be moved as it doesn't have any available moves";
+			if (game->isAnyCapturingMove)
+				messageText = "This pawn can't be moved as there are pawns with available capturing moves";
+			wxMessageBox(messageText, "Information about available moves");
 		}
+		else {
+			clickedPawn->pawnButton->SetBackgroundColour(wxColor("#895d41"));
+			for (PawnMove* move : pawnMoves) {
+				createPawnMoveButton(move);
+			}
+		}
+	}
+	else {
+		wxMessageBox(wxString("It is ").Append(game->whoseTurn == WHITE ? "White's " : "Black's ").Append("turn!"), "Information about the actual player");
 	}
 	
 }
@@ -111,7 +115,8 @@ void MainFrame::onPawnMoveClick(wxCommandEvent& evt) {
 	bool hasBecameQueen = game->performMove(evt.GetId());
 	Pawn* pawnToMove = game->pawnToMove;
 	pawnToMove->pawnButton->SetPosition(buttonPoint(pawnToMove->row, pawnToMove->col));
-	
+	if (pawnToMove != nullptr)
+		pawnToMove->pawnButton->SetBackgroundColour(wxColor("#6b3511"));
 	if (hasBecameQueen) {
 		if (pawnToMove->color == WHITE)
 			pawnToMove->pawnButton->SetBitmap(wxBitmap(wxImage("assets/final/" + assetsFolder + "/white_queen.png", wxBITMAP_TYPE_PNG)));
@@ -172,12 +177,8 @@ void MainFrame::startNewGame(wxCommandEvent& evt) {
 	}
 }
 
-void MainFrame::surrenderGame(wxCommandEvent& evt) {
-	
-}
-
 void MainFrame::displayInfo(wxCommandEvent& evt) {
-	wxMessageBox("Name: Checkers\nAuthor: Kamil Kowalczyk Wydzial MS, Informatyka profil praktyczny, semestr 1, grupa lab. 1.1", "Information about program");
+	wxMessageBox("Project Name: Checkers\nAuthor: Kamil Kowalczyk Wydzial MS, Informatyka profil praktyczny, semestr 1, grupa lab. 1.1\n Crown icons created by smashingstocks - Flaticon https://www.flaticon.com/free-icons/crown", "Information about program");
 }
 
 void MainFrame::quitApp(wxCommandEvent& evt) {
@@ -204,24 +205,24 @@ void MainFrame::generatePawnsOnBoard() {
 }
 
 void MainFrame::updateTexts() {
-	int whiteBeated = game->whiteBeated;
-	int blackBeated = game->blackBeated;
+	int whiteCaptured = game->whiteCaptured;
+	int blackCaptured = game->blackCaptured;
 	wxString text;
 
-	if (whiteBeated == blackBeated) {
+	if (whiteCaptured == blackCaptured) {
 		text = "No one it's a draw";
 		whoWinsTextUnder->SetForegroundColour(wxColor("#0fff4f"));
 	}
-	else if (whiteBeated > blackBeated) {
+	else if (whiteCaptured > blackCaptured) {
 		text.append("Black by ");
-		text.append(std::to_string(whiteBeated - blackBeated));
-		text.append(whiteBeated - blackBeated == 1 ? " piece" : " pieces");
+		text.append(std::to_string(whiteCaptured - blackCaptured));
+		text.append(whiteCaptured - blackCaptured == 1 ? " piece" : " pieces");
 		whoWinsTextUnder->SetForegroundColour(wxColor("#2f2d2d"));
 	}
 	else {
 		text.append("White by ");
-		text.append(std::to_string(blackBeated - whiteBeated));
-		text.append(blackBeated - whiteBeated == 1 ? " piece" : " pieces");
+		text.append(std::to_string(blackCaptured - whiteCaptured));
+		text.append(blackCaptured - whiteCaptured == 1 ? " piece" : " pieces");
 		whoWinsTextUnder->SetForegroundColour(wxColor("#fbeca6"));
 	}
 	whoWinsTextUnder->SetLabelText(text);

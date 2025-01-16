@@ -7,6 +7,5 @@ Pawn::Pawn(Color color, int row, int col, bool onBoard) {
 	this->isOnBoard = onBoard;
 	this->isMovable = false;
 	this->isQueen = false;
-	this->becameQueenInLastMove = false;
 	this->pawnButton = nullptr;
 }

@@ -27,7 +27,6 @@
     <ClInclude Include="PawnMove.h" />
     <ClInclude Include="Pawn.h" />
     <ClInclude Include="ImagePanel.h" />
-    <ClInclude Include="StartMenu.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
@@ -38,7 +37,6 @@
     <ClCompile Include="PawnMove.cpp" />
     <ClCompile Include="Pawn.cpp" />
     <ClCompile Include="ImagePanel.cpp" />
-    <ClCompile Include="StartMenu.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

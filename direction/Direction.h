@@ -2,20 +2,24 @@
 
 /*
 * An enum which defines the directions of the move
-* TOP_RIGHT - 1 row beneath and 1 col to the right
-* TOP_LEFT - 1 row beneath and 1 col to the left
-* BOTTOM_RIGHT - 1 row udner and 1 col to the right
-* BOTTOM_LEFT -	1 row under and 1 col to the left
-* NONE - no movement
 */
-
 enum Direction {
+	//  1 row beneath and 1 col to the right
 	TOP_RIGHT,
+
+	// 1 row beneath and 1 col to the left
 	TOP_LEFT,
-	BOTTOM_RIGHT,
+
+	// 1 row udner and 1 col to the right
+	BOTTOM_RIGHT, 
+
+	//	1 row under and 1 col to the left
 	BOTTOM_LEFT,
+
+	// no movement
 	NONE
 };
+
 /*
 * Sets coordinates for variables based on the passed direction to achieve
 * @param direction - direction of incrementation / decrementation

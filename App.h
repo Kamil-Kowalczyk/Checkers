@@ -8,7 +8,7 @@ class App : public wxApp
 {
 public:
 	/*
-	* A method for showing the MainFrame where the entire UI is coded
+	* A method for showing the MainFrame where the entire GUI is coded
 	*/
 	bool OnInit();
 };

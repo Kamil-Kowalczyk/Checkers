@@ -4,22 +4,25 @@
 
 /*
 * A class representing a single field on the game board
-* @field row - the number of the row on the game board
-* @field col - the number of the column on the game board
-* @field pawn - a pointer to a pawn standing on the field
-* @field color - a color of the field
 */
-
 class Field
 {
 public:
-	int row, col;
+	// the number of the row on the game board
+	int row;
+
+	// the number of the column on the game board
+	int col;
+
+	// a pointer to a pawn standing on the field
 	Pawn *pawn;
+
+	// a color of the field
 	Color color;
 
 
 	/*
-	* Creates an object of the Field class
+	* Constructor
 	* @param row - a row number
 	* @param col - a column number
 	* @param color - a color of the field

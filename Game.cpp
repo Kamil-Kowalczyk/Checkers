@@ -2,8 +2,8 @@
 
 Game::Game() {
 	pawnToMove = nullptr;
-	isAnyBeatMove = false;
-	maxPawnsToBeat = 0;
+	isAnyCapturingMove = false;
+	maxPawnsToCapture = 0;
 	whoseTurn = WHITE;
 	pawnMoves = {};
 
@@ -53,8 +53,8 @@ void Game::newGame() {
 	pawnMoves.clear();
 
 	pawnToMove = nullptr;
-	isAnyBeatMove = false;
-	maxPawnsToBeat = 0;
+	isAnyCapturingMove = false;
+	maxPawnsToCapture = 0;
 	whoseTurn = WHITE;
 	pawnMoves = {};
 
@@ -62,95 +62,96 @@ void Game::newGame() {
 	checkBoard();
 }
 
-void Game::createPawnMove(int row, int col, Pawn* pawn, int moveId, MoveType moveType, std::set<Pawn*> pawnsToBeat) {
+void Game::createPawnMove(int row, int col, Pawn* pawn, int moveId, MoveType moveType, std::set<Pawn*> pawnsToCapture) {
 	PawnMove* pawnMove = new PawnMove(row, col, pawn, moveType, moveId);
 	pawnMove->moveButton = nullptr;
-	pawnMove->pawnsToBeat = pawnsToBeat;
+	pawnMove->pawnsToCapture = pawnsToCapture;
 	pawn->isMovable = true;
 	pawnMoves.push_back(pawnMove);
 }
 
 void Game::checkBoard() {
-	whiteBeated = 0;
-	blackBeated = 0;
-	maxPawnsToBeat = 0;
+	whiteCaptured = 0;
+	blackCaptured = 0;
+	maxPawnsToCapture = 0;
 
 	for (int i = 0; i < 24; i++) {
 		Pawn* pawn = pawns[i];
 		if (!pawn->isOnBoard) {
 			if (pawn->color == WHITE) {
-				whiteBeated += 1;
+				whiteCaptured += 1;
 			}
 			else {
-				blackBeated += 1;
+				blackCaptured += 1;
 			}
 		}
 		else if (pawn->color == whoseTurn) {
-			std::set<Pawn*> pawnsToBeat = {};
-			checkForMove(pawn->row, pawn->col, pawn, NONE, pawnsToBeat);
+			std::set<Pawn*> pawnsToCapture = {};
+			checkForMove(pawn->row, pawn->col, pawn, NONE, pawnsToCapture);
 		}
 	}
 }
 
-void Game::checkForMove(int row, int col, Pawn* pawn, Direction directionToErase, std::set<Pawn*> pawnsToBeat, Direction queenDirection) {
-	std::set <Direction> directionsWithoutBeat = {};
+void Game::checkForMove(int startRow, int startCol, Pawn* pawn, Direction directionToErase, std::set<Pawn*> pawnsToCapture, Direction queenDirection) {
+	std::set <Direction> directionsWithMovementOnly = {};
 	std::set<Direction> directions = { BOTTOM_LEFT, BOTTOM_RIGHT, TOP_LEFT, TOP_RIGHT };
-	std::set<Pawn*> pawnsToBeatLocal;
+	std::set<Pawn*> pawnsToCaptureLocal;
+	int numberOfPawnsToCaptureAtBeginning = pawnsToCapture.size();
 	directions.erase(directionToErase);
-	if (pawnsToBeat.size() == 0) {
+	if (pawnsToCapture.size() == 0) {
 		if (pawn->isQueen) {
-			directionsWithoutBeat = { BOTTOM_LEFT, BOTTOM_RIGHT, TOP_LEFT, TOP_RIGHT };
+			directionsWithMovementOnly = { BOTTOM_LEFT, BOTTOM_RIGHT, TOP_LEFT, TOP_RIGHT };
 		}
 		else {
 			if (pawn->color == WHITE) {
-				directionsWithoutBeat.insert(TOP_LEFT);
-				directionsWithoutBeat.insert(TOP_RIGHT);
+				directionsWithMovementOnly.insert(TOP_LEFT);
+				directionsWithMovementOnly.insert(TOP_RIGHT);
 			}
 			else {
-				directionsWithoutBeat.insert(BOTTOM_LEFT);
-				directionsWithoutBeat.insert(BOTTOM_RIGHT);
+				directionsWithMovementOnly.insert(BOTTOM_LEFT);
+				directionsWithMovementOnly.insert(BOTTOM_RIGHT);
 			}
 		}
 		if (queenDirection != NONE) {
-			directionsWithoutBeat = { queenDirection };
+			directionsWithMovementOnly = { queenDirection };
 			directions = { queenDirection };
 		}
 	}
-	int numberOfPawnsToBeatAtBeginning = pawnsToBeat.size();
 
 	for (Direction direction : directions) {
-		int destRow = row;
-		int destCol = col;
-		pawnsToBeatLocal = pawnsToBeat;
+		int destRow = startRow;
+		int destCol = startCol;
+		pawnsToCaptureLocal = pawnsToCapture;
 		incrementDestinationCoordinates(direction, destRow, destCol);
 		if (destRow >= 0 && destRow <= 7 && destCol >= 0 && destCol <= 7) {
 			Field* field = board[destRow][destCol];
 			if (field->pawn != nullptr) {
-				if (field->pawn->color != whoseTurn && pawnsToBeat.count(field->pawn) == 0) {
-					Pawn* pawnToBeat = field->pawn;
+				if (field->pawn->color != whoseTurn && pawnsToCapture.count(field->pawn) == 0) {
+					Pawn* pawnToCapture = field->pawn;
 					incrementDestinationCoordinates(direction, destRow, destCol);
 					if (destRow >= 0 && destRow <= 7 && destCol >= 0 && destCol <= 7) {
 						field = board[destRow][destCol];
 						if (field->pawn == nullptr) {
-							pawnsToBeatLocal.insert(pawnToBeat);
-							checkForMove(destRow, destCol, pawn, getCounterDirection(direction), pawnsToBeatLocal);
+							pawnsToCaptureLocal.insert(pawnToCapture);
+							checkForMove(destRow, destCol, pawn, getCounterDirection(direction), pawnsToCaptureLocal);
 						}
 					}
 				}
 			}
-			else if (directionsWithoutBeat.count(direction) == 1) {
+			else if (directionsWithMovementOnly.count(direction) == 1) {
 				createPawnMove(destRow, destCol, pawn, pawnMoves.size(), MOVE);
 				if (pawn->isQueen) {
-					checkForMove(destRow, destCol, pawn, getCounterDirection(direction), pawnsToBeatLocal, direction);
+					checkForMove(destRow, destCol, pawn, getCounterDirection(direction), pawnsToCaptureLocal, direction);
 				}
 			}
 		}
 	}
-	if (numberOfPawnsToBeatAtBeginning == pawnsToBeat.size() && pawnsToBeat.size() != 0) {
-		createPawnMove(row, col, pawn, pawnMoves.size(), BEAT, pawnsToBeat);
-		isAnyBeatMove = true;
-		if (pawnsToBeat.size() > maxPawnsToBeat) {
-			maxPawnsToBeat = pawnsToBeat.size();
+
+	if (numberOfPawnsToCaptureAtBeginning == pawnsToCapture.size() && pawnsToCapture.size() != 0) {
+		createPawnMove(startRow, startCol, pawn, pawnMoves.size(), CAPTURE, pawnsToCapture);
+		isAnyCapturingMove = true;
+		if (pawnsToCapture.size() > maxPawnsToCapture) {
+			maxPawnsToCapture = pawnsToCapture.size();
 		}
 	}
 }
@@ -177,7 +178,7 @@ void Game::putPawnsOnBoard() {
 
 
 
-void Game::beatPawn(Pawn* pawn) {
+void Game::capturePawn(Pawn* pawn) {
 	pawn->isOnBoard = false;
 	pawn->pawnButton->Destroy();
 	pawn->pawnButton = nullptr;
@@ -197,7 +198,7 @@ std::list<PawnMove*> Game::handlePawnClick(int pawnId) {
 			PawnMove* pawnMove = *iter;
 
 			if (pawnMove->pawn == pawn) {
-				if (pawnMove->pawnsToBeat.size() == maxPawnsToBeat) {
+				if (pawnMove->pawnsToCapture.size() == maxPawnsToCapture) {
 					pawnAvailableMoves.push_back(pawnMove);
 				}
 			}
@@ -216,14 +217,14 @@ bool Game::performMove(int moveId) {
 	}
 	else {
 		board[pawnToMove->row][pawnToMove->col]->erasePawn();
-		for (Pawn* pawn : move->pawnsToBeat) {
-			beatPawn(board[pawn->row][pawn->col]->pawn);
+		for (Pawn* pawn : move->pawnsToCapture) {
+			capturePawn(board[pawn->row][pawn->col]->pawn);
 			board[pawn->row][pawn->col]->erasePawn();
 		}
 		board[move->row][move->col]->putPawn(pawnToMove);
 	}
 
-	  isAnyBeatMove = false;
+	  isAnyCapturingMove = false;
 	
 	whoseTurn = whoseTurn == WHITE ? BLACK : WHITE;
 
@@ -241,5 +242,7 @@ bool Game::performMove(int moveId) {
 }
 
 Pawn* Game::getPawnById(int pawnId) {
+	if (pawnId < 0 || pawnId > 23)
+		return nullptr;
 	return pawns[pawnId];
 }

@@ -7,35 +7,49 @@
 * An enum representing a color
 */
 enum Color {
-	WHITE,
+	// white color
+	WHITE, 
+
+	// black color
 	BLACK
 };
 
 /*
-* A class representing a single pawn on the game 
-* @field color - a color of the pawn
-* @field col - a column number where the pawn is standing
-* @field row - a row number where the pawn is standing
-* @field isOnBoard - determines if the pawn is on the board
-* @field isMovable - determines if the pawn has any moves to perform
-* @field isQueen - determines if the pawn is a queen pawn
-* @field becameQueenInLastMove - determines if the pawn has became a queen in the last move
-* @field pawnButton - pointer to a wxBitmapButton representing the pawn on the board
+* A class representing a single pawn on the game board
+* @field color -
+* @field col -
+* @field row -
+* @field isOnBoard -
+* @field isMovable -
+* @field isQueen -
+* @field pawnButton -
 */
 class Pawn
 {
 public:
+	// a color of the pawn
 	Color color;
+
+	// a column number where the pawn is standing
 	int col;
+
+	// a row number where the pawn is standing
 	int row;
+
+	// determines if the pawn is on the board
 	bool isOnBoard;
+
+	// determines if the pawn has any moves to perform
 	bool isMovable;
+
+	// determines if the pawn is a queen pawn
 	bool isQueen;
-	bool becameQueenInLastMove;
+
+	// a pointer to a wxBitmapButton representing the pawn on the board
 	wxBitmapButton* pawnButton;
 
 	/*
-	* Creates an object of the Pawn class
+	* Constructor
 	* @param color - a color of the pawn
 	* @param row - a row number where the pawn is standing
 	* @param col - a column number where the pawn is standing
